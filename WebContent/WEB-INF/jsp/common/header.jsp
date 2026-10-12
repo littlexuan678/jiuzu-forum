@@ -10,7 +10,7 @@
     <link rel="icon" href="${ctx}/static/images/favicon.png">
     <title><c:out value="${empty pageTitle ? '首页' : pageTitle}"/> - 九组论坛</title>
     <script>try{var t=localStorage.getItem('forum-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}</script>
-    <link rel="stylesheet" href="${ctx}/static/css/style.v6.css">
+    <link rel="stylesheet" href="${ctx}/static/css/style.v7.css">
 </head>
 <body>
 
@@ -53,6 +53,7 @@
 
         <nav class="nav-links">
             <a href="${ctx}/posts">首页</a>
+            <a href="${ctx}/ai">AI 助手</a>
             <c:if test="${sessionScope.user.admin}">
                 <a href="${ctx}/admin?op=posts">管理后台</a>
             </c:if>

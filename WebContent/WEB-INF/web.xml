@@ -153,6 +153,19 @@
         <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>AiServlet</servlet-name>
+        <servlet-class>com.jiuzu.forum.web.AiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AiServlet</servlet-name>
+        <url-pattern>/ai</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AiServlet</servlet-name>
+        <url-pattern>/ai/chat</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>

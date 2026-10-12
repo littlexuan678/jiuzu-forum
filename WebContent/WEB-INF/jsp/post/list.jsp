@@ -204,6 +204,7 @@
             <p style="font-size:12.5px;line-height:1.9;color:var(--color-text-secondary)">
                 还没账号？<a href="${ctx}/register">注册一个</a><br>
                 有想法？<a href="${ctx}/post/add">发个帖子</a><br>
+                有问题？<a href="${ctx}/ai">问问 AI 小九</a><br>
                 <a href="${ctx}/posts?boardId=5">查看公告</a>
             </p>
         </div>

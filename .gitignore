@@ -19,3 +19,6 @@ __pycache__/
 
 # 部署脚本（含凭据参数，不入库）
 _deploy/
+
+# DeepSeek API 密钥配置，不入库
+WebContent/WEB-INF/config.properties
