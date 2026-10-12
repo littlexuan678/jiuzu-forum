@@ -16,3 +16,6 @@ __pycache__/
 *.pyc
 .idea/
 .vscode/
+
+# 部署脚本（含凭据参数，不入库）
+_deploy/
