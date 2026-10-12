@@ -7,7 +7,7 @@
 
 <div class="container admin-wrap">
     <div class="admin-head">
-        <h2>🔧 管理后台</h2>
+        <h2><svg class="i"><use href="#i-tool"></use></svg>管理后台</h2>
         <span class="desc">帖子管理与用户管理</span>
         <div class="admin-nav">
             <a class="sort on" href="${ctx}/admin?op=posts">内容管理</a>
@@ -52,7 +52,9 @@
                         <td><span class="tag-board"><c:out value="${p.boardName}"/></span></td>
                         <td><c:out value="${p.nickname}"/></td>
                         <td class="muted" style="font-size:12px">
-                            👁<c:out value="${p.views}"/> 💬<c:out value="${p.replies}"/> ❤️<c:out value="${p.likes}"/>
+                            <span class="tbl-stat"><svg class="i"><use href="#i-eye"></use></svg><c:out value="${p.views}"/></span>
+                            <span class="tbl-stat"><svg class="i"><use href="#i-chat"></use></svg><c:out value="${p.replies}"/></span>
+                            <span class="tbl-stat"><svg class="i"><use href="#i-heart"></use></svg><c:out value="${p.likes}"/></span>
                         </td>
                         <td>
                             <div class="tbl-actions">

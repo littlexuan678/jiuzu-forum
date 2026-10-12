@@ -30,9 +30,10 @@
                 <c:out value="${post.nickname}"/>
             </span>
             <span><c:out value="${post.createdText}"/></span>
-            <span>👁 <c:out value="${post.views}"/> 次浏览</span>
+            <span><svg class="i"><use href="#i-eye"></use></svg><c:out value="${post.views}"/> 次浏览</span>
             <span class="tag-board ${post.boardName eq '公告区' ? 'admin' : ''}">
-                <c:out value="${post.boardIcon}"/> <c:out value="${post.boardName}"/>
+                <jsp:include page="/WEB-INF/jsp/common/board-icon.jsp"><jsp:param name="name" value="${post.boardName}"/></jsp:include>
+                <c:out value="${post.boardName}"/>
             </span>
         </div>
 
@@ -43,12 +44,12 @@
             <c:choose>
                 <c:when test="${empty sessionScope.user}">
                     <a class="btn ghost" href="${ctx}/login?redirect=${pageContext.request.requestURI}%3Fid%3D${post.id}">
-                        ❤️ 赞 <c:out value="${post.likes}"/>
+                        <svg class="i"><use href="#i-heart-o"></use></svg>赞 <c:out value="${post.likes}"/>
                     </a>
                 </c:when>
                 <c:otherwise>
                     <a class="btn ${post.liked ? '' : 'ghost'}" href="${ctx}/like?id=${post.id}">
-                        ${post.liked ? '❤️ 已赞 ' : '🤍 赞 '}<c:out value="${post.likes}"/>
+                        <svg class="i"><use href="${post.liked ? '#i-heart' : '#i-heart-o'}"></use></svg>${post.liked ? '已赞' : '赞'} <c:out value="${post.likes}"/>
                     </a>
                 </c:otherwise>
             </c:choose>
@@ -72,7 +73,7 @@
         <h4>全部回复（<c:out value="${empty replies ? 0 : replies.size()}"/>）</h4>
         <c:choose>
             <c:when test="${empty replies}">
-                <div class="card empty" style="padding:30px">还没有人回复，来抢沙发 🛋</div>
+                <div class="card empty" style="padding:30px"><svg class="i"><use href="#i-chat"></use></svg>还没有人回复，来抢沙发</div>
             </c:when>
             <c:otherwise>
                 <c:forEach items="${replies}" var="r">

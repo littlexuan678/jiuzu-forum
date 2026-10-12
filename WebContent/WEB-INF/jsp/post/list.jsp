@@ -20,10 +20,10 @@
                         <div class="hero-sub">说点什么，写点什么。一个用 Servlet + JSP + JDBC 搭起来的小论坛，支持发帖、回复、点赞与搜索。</div>
                     </div>
                     <div class="hero-actions">
-                        <a class="hero-btn ghost" href="${ctx}/posts?boardId=5">📢 看公告</a>
+                        <a class="hero-btn ghost" href="${ctx}/posts?boardId=5"><svg class="i"><use href="#i-mega"></use></svg>看公告</a>
                         <c:choose>
                             <c:when test="${not empty sessionScope.user}">
-                                <a class="hero-btn primary" href="${ctx}/post/add">✏️ 发个帖子</a>
+                                <a class="hero-btn primary" href="${ctx}/post/add"><svg class="i"><use href="#i-pen"></use></svg>发个帖子</a>
                             </c:when>
                             <c:otherwise>
                                 <a class="hero-btn primary" href="${ctx}/login">登录 / 注册</a>
@@ -43,11 +43,11 @@
         <div class="card panel" style="padding:12px 10px">
             <div class="nav-sec">板块</div>
             <a class="nav-item ${empty boardId || boardId == 0 ? 'on' : ''}" href="${ctx}/posts">
-                <span class="ic">🗂</span><span>全部帖子</span>
+                <span class="ic"><svg class="i"><use href="#i-folder"></use></svg></span><span>全部帖子</span>
             </a>
             <c:forEach items="${boards}" var="b">
                 <a class="nav-item ${boardId == b.id ? 'on' : ''}" href="${ctx}/posts?boardId=${b.id}">
-                    <span class="ic"><c:out value="${b.icon}"/></span>
+                    <span class="ic"><jsp:include page="/WEB-INF/jsp/common/board-icon.jsp"><jsp:param name="name" value="${b.name}"/></jsp:include></span>
                     <span><c:out value="${b.name}"/></span>
                     <span class="n"><c:out value="${b.postCount}"/></span>
                 </a>
@@ -89,7 +89,7 @@
                 <a class="sort ${sort ne 'hot' ? 'on' : ''}" href="${sortNew}">最新</a>
                 <a class="sort ${sort eq 'hot' ? 'on' : ''}" href="${sortHot}">热门</a>
                 <c:if test="${not empty kw}">
-                    <a class="sort" href="${ctx}/posts">✕ 清除搜索</a>
+                    <a class="sort" href="${ctx}/posts"><svg class="i"><use href="#i-x"></use></svg>清除搜索</a>
                 </c:if>
             </div>
         </div>
@@ -98,7 +98,7 @@
         <c:choose>
             <c:when test="${empty pageBean.list}">
                 <div class="card empty">
-                    <span class="big">🗒</span>
+                    <span class="big"><svg class="i"><use href="#i-note"></use></svg></span>
                     <c:choose>
                         <c:when test="${not empty kw}">没有找到与「<c:out value="${kw}"/>」相关的帖子</c:when>
                         <c:otherwise>这个板块还没有帖子，来发第一个吧</c:otherwise>
@@ -113,7 +113,7 @@
                             <form action="${ctx}/post/delete" method="post"
                                   onsubmit="return confirm('确定删除这个帖子？回复也会一起删除')">
                                 <input type="hidden" name="id" value="${p.id}">
-                                <button class="pc-del" type="submit">🗑 删除</button>
+                                <button class="pc-del" type="submit"><svg class="i"><use href="#i-trash"></use></svg>删除</button>
                             </form>
                         </c:if>
                         <div class="pc-body">
@@ -130,13 +130,14 @@
                                     <c:out value="${p.nickname}"/>
                                 </span>
                                 <span class="tag-board ${p.boardName eq '公告区' ? 'admin' : ''}">
-                                    <c:out value="${p.boardIcon}"/> <c:out value="${p.boardName}"/>
+                                    <jsp:include page="/WEB-INF/jsp/common/board-icon.jsp"><jsp:param name="name" value="${p.boardName}"/></jsp:include>
+                                    <c:out value="${p.boardName}"/>
                                 </span>
                                 <span><c:out value="${p.createdText}"/></span>
                                 <span class="nums">
-                                    <span>👁 <c:out value="${p.views}"/></span>
-                                    <span>💬 <c:out value="${p.replies}"/></span>
-                                    <span>❤️ <c:out value="${p.likes}"/></span>
+                                    <span><svg class="i"><use href="#i-eye"></use></svg><c:out value="${p.views}"/></span>
+                                    <span><svg class="i"><use href="#i-chat"></use></svg><c:out value="${p.replies}"/></span>
+                                    <span><svg class="i"><use href="#i-heart"></use></svg><c:out value="${p.likes}"/></span>
                                 </span>
                             </div>
                         </div>
@@ -172,7 +173,7 @@
     <%-- ---------- 右侧：统计与热门 ---------- --%>
     <aside class="col-rail">
         <div class="card panel">
-            <h4>📊 站点统计</h4>
+            <h4><svg class="i"><use href="#i-chart"></use></svg>站点统计</h4>
             <div class="stats">
                 <div class="stat"><b>${totalPosts}</b><span>帖子总数</span></div>
                 <div class="stat"><b>${totalUsers}</b><span>注册用户</span></div>
@@ -180,7 +181,7 @@
         </div>
 
         <div class="card panel">
-            <h4>🔥 热门帖子 <small>Top 5</small></h4>
+            <h4><svg class="i"><use href="#i-fire"></use></svg>热门帖子 <small>Top 5</small></h4>
             <c:choose>
                 <c:when test="${empty hotPosts}">
                     <p class="muted" style="font-size:12px">还没有热门内容</p>
@@ -199,7 +200,7 @@
         </div>
 
         <div class="card panel">
-            <h4>🚀 快速开始</h4>
+            <h4><svg class="i"><use href="#i-zap"></use></svg>快速开始</h4>
             <p style="font-size:12.5px;line-height:1.9;color:var(--color-text-secondary)">
                 还没账号？<a href="${ctx}/register">注册一个</a><br>
                 有想法？<a href="${ctx}/post/add">发个帖子</a><br>

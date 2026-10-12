@@ -36,8 +36,17 @@ public class EncodingFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
         req.setCharacterEncoding("UTF-8");
         resp.setCharacterEncoding("UTF-8");
-        if (forceResponse) {
+        // 仅对页面请求强制 text/html；静态资源（css/js/图片）交由容器按扩展名
+        // 给出正确的 Content-Type（text/css 等），否则浏览器会拒收样式表
+        String uri = req.getRequestURI();
+        int lastSlash = uri.lastIndexOf('/');
+        boolean looksLikeFile = uri.lastIndexOf('.') > lastSlash;
+        if (forceResponse && !looksLikeFile) {
             resp.setHeader("Content-Type", "text/html;charset=UTF-8");
+            // 动态页面禁用缓存：确保每次刷新都拉取最新版本（避免改版后浏览器仍显示旧页面）
+            resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+            resp.setHeader("Pragma", "no-cache");
+            resp.setDateHeader("Expires", 0);
         }
         // 记录基础路径，JSP 中可用 ${ctx} 拼接资源与链接
         req.setAttribute("ctx", req.getContextPath());

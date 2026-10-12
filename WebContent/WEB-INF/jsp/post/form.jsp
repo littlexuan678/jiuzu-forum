@@ -7,7 +7,7 @@
 
 <div class="container" style="padding-top:16px;max-width:760px">
     <div class="detail card">
-        <h1 style="font-size:19px;margin-bottom:14px">✏️ 发布新帖</h1>
+        <h1 style="font-size:19px;margin-bottom:14px"><svg class="i"><use href="#i-pen"></use></svg>发布新帖</h1>
 
         <c:if test="${not empty error}">
             <div class="alert error"><c:out value="${error}"/></div>
@@ -19,7 +19,7 @@
                 <select class="select" id="boardSel" name="boardId">
                     <c:forEach items="${boards}" var="b">
                         <option value="${b.id}" ${boardId eq b.id ? 'selected' : ''}>
-                            <c:out value="${b.icon}"/> <c:out value="${b.name}"/>
+                            <c:out value="${b.name}"/>
                             <c:if test="${not empty b.description}"> — <c:out value="${b.description}"/></c:if>
                         </option>
                     </c:forEach>

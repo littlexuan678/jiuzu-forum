@@ -8,7 +8,7 @@
 
 <div class="container admin-wrap">
     <div class="admin-head">
-        <h2>👥 用户管理</h2>
+        <h2><svg class="i"><use href="#i-users"></use></svg>用户管理</h2>
         <span class="desc">封禁 / 解封、权限调整、删除用户</span>
         <div class="admin-nav">
             <a class="sort" href="${ctx}/admin?op=posts">内容管理</a>
