@@ -5,6 +5,21 @@
 
 > 课程：Java Web 开发（2026—2027 学年第一学期）
 > 适用：山西工商学院 计算机信息工程学院
+> 源码仓库：https://github.com/littlexuan678/jiuzu-forum
+
+---
+
+## 快速开始
+
+Windows 双击 `start-forum.bat`（自动编译、部署、启动 Tomcat 并打开浏览器）；
+停止时双击 `stop-forum.bat` 或直接关闭弹出的 Tomcat 黑窗口。
+
+- 首页：`http://localhost:8080/jiuzu-forum/posts`
+- 演示账号：`admin` / `admin123`
+- 手动命令：`python build.py compile|war|deploy|start|stop|all`
+
+> 注意：论坛数据存在 `WebContent/WEB-INF/data/forum.db`（SQLite），
+> 首次运行由 `AppListener` 自动建表并播种演示账号；该目录不进 Git。
 
 ---
 
