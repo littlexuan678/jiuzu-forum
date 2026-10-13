@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page isErrorPage="true" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp"/>
-<div class="container" style="padding:80px 12px;text-align:center">
+<div class="container" style="padding:110px 12px;text-align:center">
     <div class="card" style="padding:50px 20px">
         <div class="err-icon"><svg class="i"><use href="#i-warn"></use></svg></div>
         <h2 style="font-size:18px;margin-bottom:8px">服务器开小差了</h2>

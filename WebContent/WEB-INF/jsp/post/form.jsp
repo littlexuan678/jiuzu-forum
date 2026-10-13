@@ -5,7 +5,7 @@
 <%-- ===================== 发帖表单 =====================
      GET /post/add 由 PostAddServlet 提供板块列表；POST 提交到同一地址 --%>
 
-<div class="container" style="padding-top:16px;max-width:760px">
+<div class="container" style="padding-top:92px;max-width:760px">
     <div class="detail card">
         <h1 style="font-size:19px;margin-bottom:14px"><svg class="i"><use href="#i-pen"></use></svg>发布新帖</h1>
 

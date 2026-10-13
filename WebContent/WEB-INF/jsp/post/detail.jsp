@@ -5,7 +5,7 @@
 <%-- ===================== 帖子详情页 =====================
      数据由 PostDetailServlet 提供：post（帖子）、replies（回复列表） --%>
 
-<div class="container" style="padding-top:16px">
+<div class="container" style="padding-top:92px">
     <%-- Session 中的操作反馈 --%>
     <c:if test="${not empty sessionScope.flash}">
         <div class="alert ok"><c:out value="${sessionScope.flash}"/></div>

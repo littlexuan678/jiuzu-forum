@@ -10,7 +10,7 @@
     <link rel="icon" href="${ctx}/static/images/favicon.png">
     <title><c:out value="${empty pageTitle ? '首页' : pageTitle}"/> - 九组论坛</title>
     <script>try{var t=localStorage.getItem('forum-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}</script>
-    <link rel="stylesheet" href="${ctx}/static/css/style.v7.css">
+    <link rel="stylesheet" href="${ctx}/static/css/style.v8.css">
 </head>
 <body>
 
@@ -39,31 +39,33 @@
     <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
     <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
     <symbol id="i-warn" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><polyline points="19 12 12 19 5 12"/></symbol>
 </svg>
 
-<header class="header">
-    <div class="container inner">
+<header class="header" id="top">
+    <div class="inner">
         <button class="burger" id="burger" type="button" aria-label="菜单"><svg class="i"><use href="#i-menu"></use></svg></button>
 
         <a class="logo" href="${ctx}/posts">
             <img src="${ctx}/static/images/logo.png" alt="九组论坛">
             <b>九组论坛</b>
         </a>
-        <span class="slogan">说点什么，写点什么</span>
 
-        <nav class="nav-links">
-            <a href="${ctx}/posts">首页</a>
-            <a href="${ctx}/ai">AI 助手</a>
-            <c:if test="${sessionScope.user.admin}">
-                <a href="${ctx}/admin?op=posts">管理后台</a>
-            </c:if>
-        </nav>
-
-        <div class="top-search">
-            <form action="${ctx}/posts" method="get">
-                <input type="text" name="kw" value="<c:out value='${kw}'/>" placeholder="搜索标题 / 内容…">
-                <button type="submit" aria-label="搜索"><svg class="i"><use href="#i-search"></use></svg></button>
-            </form>
+        <div class="nav-pill">
+            <nav class="nav-links">
+                <a href="${ctx}/posts">首页</a>
+                <a href="${ctx}/ai">AI 助手</a>
+                <c:if test="${sessionScope.user.admin}">
+                    <a href="${ctx}/admin?op=posts">管理后台</a>
+                </c:if>
+            </nav>
+            <div class="top-search">
+                <form action="${ctx}/posts" method="get">
+                    <input type="text" name="kw" value="<c:out value='${kw}'/>" placeholder="搜索…">
+                    <button type="submit" aria-label="搜索"><svg class="i"><use href="#i-search"></use></svg></button>
+                </form>
+            </div>
         </div>
 
         <button class="theme-toggle" id="themeToggle" type="button" title="切换深色 / 浅色"><svg class="i"><use href="#i-moon"></use></svg></button>
@@ -75,16 +77,22 @@
                         <c:out value="${sessionScope.user.avatarText}"/>
                     </span>
                     <span class="uname"><c:out value="${sessionScope.user.nickname}"/></span>
-                    <a class="btn ghost sm" href="${ctx}/post/add"><svg class="i"><use href="#i-pen"></use></svg>发帖</a>
-                    <a class="btn ghost sm" href="${ctx}/logout">退出登录</a>
+                    <a class="btn ghost sm" href="${ctx}/logout">退出</a>
                 </c:when>
                 <c:otherwise>
-                    <a class="btn" href="${ctx}/login">登录 / 注册</a>
+                    <a class="btn sm" href="${ctx}/login">登录 / 注册</a>
                 </c:otherwise>
             </c:choose>
         </div>
     </div>
 </header>
+
+<%-- 右下角 FAB 悬浮按钮列：发帖 / AI 助手 / 回到顶部 --%>
+<div class="fab-col">
+    <a class="fab" href="${ctx}/post/add" title="发帖"><svg class="i"><use href="#i-pen"></use></svg></a>
+    <a class="fab" href="${ctx}/ai" title="AI 助手"><svg class="i"><use href="#i-zap"></use></svg></a>
+    <a class="fab" href="#top" title="回到顶部"><svg class="i"><use href="#i-up"></use></svg></a>
+</div>
 
 <%-- 移动端抽屉式板块导航 --%>
 <c:if test="${not empty boards}">

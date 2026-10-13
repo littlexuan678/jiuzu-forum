@@ -6,37 +6,33 @@
 <%-- ===================== 帖子列表页（首页）=====================
      数据由 PostListServlet 提供：pageBean（分页数据）、boards（板块）、hotPosts（热门） --%>
 
-<%-- 首页品牌 Hero：仅在「全部帖子 + 无搜索」时展示 --%>
+<%-- 首页全屏沉浸 Hero（朱朱Blog 风格）：仅在「全部帖子 + 无搜索」时展示 --%>
 <c:if test="${empty boardId || boardId == 0}">
     <c:if test="${empty kw}">
-        <div class="container">
-            <div class="hero">
-                <div class="hero-inner">
-                    <div>
-                        <div class="hero-title">
-                            <img src="${ctx}/static/images/logo.png" alt="九组论坛">
-                            九组论坛
-                        </div>
-                        <div class="hero-sub">说点什么，写点什么。一个用 Servlet + JSP + JDBC 搭起来的小论坛，支持发帖、回复、点赞与搜索。</div>
-                    </div>
-                    <div class="hero-actions">
-                        <a class="hero-btn ghost" href="${ctx}/posts?boardId=5"><svg class="i"><use href="#i-mega"></use></svg>看公告</a>
-                        <c:choose>
-                            <c:when test="${not empty sessionScope.user}">
-                                <a class="hero-btn primary" href="${ctx}/post/add"><svg class="i"><use href="#i-pen"></use></svg>发个帖子</a>
-                            </c:when>
-                            <c:otherwise>
-                                <a class="hero-btn primary" href="${ctx}/login">登录 / 注册</a>
-                            </c:otherwise>
-                        </c:choose>
-                    </div>
+        <section class="hero-fs">
+            <div class="hero-fs-inner">
+                <span class="hero-chip">欢 迎 来 访</span>
+                <h1 class="hero-fs-title">九组论坛</h1>
+                <p class="hero-fs-sub">说点什么，写点什么 —— 在时光中相遇，传递温暖话语</p>
+                <div class="hero-fs-actions">
+                    <a class="hero-btn ghost" href="${ctx}/posts?boardId=5"><svg class="i"><use href="#i-mega"></use></svg>看公告</a>
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.user}">
+                            <a class="hero-btn primary" href="${ctx}/post/add"><svg class="i"><use href="#i-pen"></use></svg>发个帖子</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a class="hero-btn primary" href="${ctx}/login">登录 / 注册</a>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
-        </div>
+            <a class="hero-down" href="#main-anchor" aria-label="往下浏览"><svg class="i"><use href="#i-down"></use></svg></a>
+        </section>
+        <script>if (document.querySelector('.hero-fs')) document.body.classList.add('has-hero');</script>
     </c:if>
 </c:if>
 
-<div class="container main">
+<div class="container main" id="main-anchor">
 
     <%-- ---------- 左侧：板块导航 ---------- --%>
     <aside class="col-nav">
