@@ -86,4 +86,9 @@ public class ReplyDao extends BaseDao {
     public int countAll() {
         return count("SELECT COUNT(1) FROM t_reply", null);
     }
+
+    /** 某个用户的回复数（个人中心用） */
+    public int countByUser(int userId) {
+        return count("SELECT COUNT(1) FROM t_reply WHERE user_id=?", new Object[]{userId});
+    }
 }

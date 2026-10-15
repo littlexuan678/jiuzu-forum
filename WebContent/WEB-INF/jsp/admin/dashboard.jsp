@@ -58,12 +58,40 @@
     </div>
 
     <div class="card quick-panel">
-        <h3 class="card-title">快捷操作</h3>
-        <div class="quick-row">
-            <a class="btn ghost" href="${ctx}/admin?op=posts"><svg class="i"><use href="#i-doc"></use></svg>管理帖子</a>
-            <a class="btn ghost" href="${ctx}/admin?op=boards"><svg class="i"><use href="#i-grid"></use></svg>管理板块</a>
-            <a class="btn ghost" href="${ctx}/admin?op=replies"><svg class="i"><use href="#i-chat"></use></svg>审查回复</a>
-            <a class="btn ghost" href="${ctx}/admin?op=users"><svg class="i"><use href="#i-users"></use></svg>管理用户</a>
+        <h3 class="card-title">系统管理 · 点击卡片进入对应模块</h3>
+        <div class="console-grid">
+            <a class="console-card" href="${ctx}/admin?op=posts">
+                <span class="console-ic" style="background:rgba(255,138,0,.16);color:#fbbf24">
+                    <svg class="i"><use href="#i-doc"></use></svg>
+                </span>
+                <h4>帖子管理</h4>
+                <p>查看全部主题帖，支持置顶 / 取消置顶、删除违规内容</p>
+                <span class="go">进入管理 →</span>
+            </a>
+            <a class="console-card" href="${ctx}/admin?op=replies">
+                <span class="console-ic" style="background:rgba(124,92,255,.16);color:#a78bfa">
+                    <svg class="i"><use href="#i-chat"></use></svg>
+                </span>
+                <h4>回帖管理</h4>
+                <p>审查全部楼层回复，一键清理灌水与不当言论</p>
+                <span class="go">进入管理 →</span>
+            </a>
+            <a class="console-card" href="${ctx}/admin?op=boards">
+                <span class="console-ic" style="background:rgba(46,204,113,.16);color:#4ade80">
+                    <svg class="i"><use href="#i-grid"></use></svg>
+                </span>
+                <h4>板块管理</h4>
+                <p>新增、改名、调整排序与删除讨论分区</p>
+                <span class="go">进入管理 →</span>
+            </a>
+            <a class="console-card" href="${ctx}/admin?op=users">
+                <span class="console-ic" style="background:rgba(0,180,216,.16);color:#38bdf8">
+                    <svg class="i"><use href="#i-users"></use></svg>
+                </span>
+                <h4>用户管理</h4>
+                <p>查看注册用户、封禁 / 解封、提升为管理员</p>
+                <span class="go">进入管理 →</span>
+            </a>
         </div>
     </div>
 </div>

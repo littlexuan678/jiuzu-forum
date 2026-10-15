@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="${ctx}/static/css/style.v9.css">
     <link rel="stylesheet" href="${ctx}/static/css/admin.css">
 </head>
-<body>
+<body class="${adminMode ? 'admin-mode' : ''}">
 
 <%-- SVG 图标雪碧图：全站统一线性图标（feather/lucide 风格），通过 <svg class="i"><use href="#i-xxx"/></svg> 引用 --%>
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
@@ -80,10 +80,19 @@
         <div class="m-user">
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <span class="m-ava" style="background:${sessionScope.user.avatarColor}">
-                        <c:out value="${sessionScope.user.avatarText}"/>
-                    </span>
-                    <span><c:out value="${sessionScope.user.nickname}"/></span>
+                    <a href="${ctx}/user/profile" title="个人中心" style="display:flex;align-items:center;gap:8px">
+                        <c:choose>
+                            <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                <img class="m-ava" src="<c:out value='${sessionScope.user.avatar}'/>" alt="头像" style="object-fit:cover">
+                            </c:when>
+                            <c:otherwise>
+                                <span class="m-ava" style="background:${sessionScope.user.avatarColor}">
+                                    <c:out value="${sessionScope.user.avatarText}"/>
+                                </span>
+                            </c:otherwise>
+                        </c:choose>
+                        <span><c:out value="${sessionScope.user.nickname}"/></span>
+                    </a>
                     <a class="m-btn ghost sm" href="${ctx}/logout">退出</a>
                 </c:when>
                 <c:otherwise>

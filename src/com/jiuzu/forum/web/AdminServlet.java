@@ -51,6 +51,9 @@ public class AdminServlet extends BaseServlet {
             redirect(resp, req, "/posts");
             return;
         }
+        // 标记后台页面：让 header 给 body 加 class，从而启用后台专用的深色实色样式
+        req.setAttribute("adminMode", Boolean.TRUE);
+
         String op = getStringParam(req, "op");
         if (op.isEmpty()) {
             op = "dashboard";

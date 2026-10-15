@@ -25,6 +25,12 @@ public class UserDao extends BaseDao {
             u.setPassword(rs.getString("password"));
             u.setNickname(rs.getString("nickname"));
             u.setAvatarColor(rs.getString("avatar_color"));
+            // 头像图片地址（个人中心上传，可为空，为空时显示文字头像）
+            try {
+                u.setAvatar(rs.getString("avatar"));
+            } catch (SQLException ignore) {
+                // 老库还没加 avatar 列时忽略，迁移完成后不会再走到这里
+            }
             u.setRole(rs.getInt("role"));
             u.setBanned(rs.getInt("banned"));
             u.setCreatedTime(rs.getLong("created_time"));
@@ -75,6 +81,17 @@ public class UserDao extends BaseDao {
     /** 修改昵称 */
     public int updateNickname(int id, String nickname) {
         return update("UPDATE t_user SET nickname=? WHERE id=?", new Object[]{nickname, id});
+    }
+
+    /** 修改个人资料：昵称 + 头像地址 */
+    public int updateProfile(int id, String nickname, String avatar) {
+        return update("UPDATE t_user SET nickname=?, avatar=? WHERE id=?",
+                new Object[]{nickname, avatar, id});
+    }
+
+    /** 修改密码（传入的已是 MD5 后的密文） */
+    public int updatePassword(int id, String md5Password) {
+        return update("UPDATE t_user SET password=? WHERE id=?", new Object[]{md5Password, id});
     }
 
     /** 删除用户（同时清理其关联数据由 Service 层负责） */

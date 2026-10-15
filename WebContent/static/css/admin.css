@@ -124,3 +124,231 @@ label.full { display: flex; flex-direction: column; gap: 6px; font-size: 12.5px;
 .ai-compose .textarea { min-height: 60px; margin: 0; resize: vertical; }
 .ai-compose-foot { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .btn .i, .btn.ghost .i { width: 15px; height: 15px; vertical-align: -2px; margin-right: 4px; }
+
+/* ============================================================
+   后台专用：深色实色控制台（只在 body.admin-mode 下生效）
+   解决的问题：后台原来沿用前台的毛玻璃 + 风景底图，导致文字发虚、看不清
+   ============================================================ */
+body.admin-mode {
+    background: #0b1120 !important;
+    background-image: none !important;
+    color: #e2e8f0 !important;
+}
+
+/* 后台一律禁用毛玻璃与半透明 */
+body.admin-mode *,
+body.admin-mode *::before,
+body.admin-mode *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.admin-mode .card,
+body.admin-mode .panel,
+body.admin-mode .stat-card,
+body.admin-mode .admin-wrap .card,
+body.admin-mode .tbl-wrap,
+body.admin-mode .m-card {
+    background: #111827 !important;
+    background-image: none !important;
+    border: 1px solid #1f2937 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+    color: #e2e8f0 !important;
+}
+
+body.admin-mode h1,
+body.admin-mode h2,
+body.admin-mode h3,
+body.admin-mode h4,
+body.admin-mode .admin-head h2 {
+    color: #f1f5f9 !important;
+}
+
+body.admin-mode .desc,
+body.admin-mode .muted,
+body.admin-mode th {
+    color: #94a3b8 !important;
+}
+
+/* 后台导航标签 */
+body.admin-mode .admin-nav .sort {
+    background: #111827 !important;
+    border: 1px solid #1f2937 !important;
+    color: #94a3b8 !important;
+}
+body.admin-mode .admin-nav .sort.on,
+body.admin-mode .admin-nav .sort:hover {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+}
+
+/* 统计数字：加大加亮，不再发虚 */
+body.admin-mode .stat-num {
+    color: #60a5fa !important;
+    font-size: 32px !important;
+    text-shadow: none !important;
+}
+body.admin-mode .stat-card b,
+body.admin-mode .stat-card .num {
+    color: #f1f5f9 !important;
+}
+
+/* 表格 */
+body.admin-mode table,
+body.admin-mode .tbl {
+    background: #111827 !important;
+    color: #e2e8f0 !important;
+}
+body.admin-mode thead th,
+body.admin-mode .tbl th {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border-bottom: 1px solid #334155 !important;
+}
+body.admin-mode tbody td,
+body.admin-mode .tbl td {
+    border-bottom: 1px solid #1f2937 !important;
+    color: #e2e8f0 !important;
+}
+body.admin-mode tbody tr:hover,
+body.admin-mode .tbl tr:hover {
+    background: #1a2234 !important;
+}
+
+/* 后台按钮 */
+body.admin-mode .btn,
+body.admin-mode .m-btn {
+    background: #111827 !important;
+    border: 1px solid #334155 !important;
+    color: #cbd5e1 !important;
+}
+body.admin-mode .btn:hover,
+body.admin-mode .m-btn:hover {
+    border-color: #3b82f6 !important;
+    color: #60a5fa !important;
+}
+body.admin-mode .btn.danger,
+body.admin-mode .m-btn.danger {
+    background: #7f1d1d !important;
+    border-color: #b91c1c !important;
+    color: #fecaca !important;
+}
+body.admin-mode .btn.primary,
+body.admin-mode .m-btn.primary {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+}
+
+/* 后台输入框 */
+body.admin-mode input,
+body.admin-mode select,
+body.admin-mode textarea {
+    background: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+/* 后台的小标签 */
+body.admin-mode .tag,
+body.admin-mode .badge,
+body.admin-mode .tag-board {
+    background: #1e293b !important;
+    color: #cbd5e1 !important;
+    border: 1px solid #334155 !important;
+}
+
+/* 后台提示条 */
+body.admin-mode .alert {
+    background: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #e2e8f0 !important;
+}
+body.admin-mode .alert.ok { border-color: #047857 !important; color: #6ee7b7 !important; }
+body.admin-mode .alert.error { border-color: #b91c1c !important; color: #fca5a5 !important; }
+
+/* 后台页脚与链接 */
+body.admin-mode .site-footer {
+    background: #0b1120 !important;
+    border-top: 1px solid #1f2937 !important;
+    color: #64748b !important;
+}
+body.admin-mode a { color: #93c5fd; }
+body.admin-mode a:hover { color: #60a5fa; }
+
+/* 后台：直接把前台现代主题的配色变量整体换成实色深色，保证后台不再发白透光 */
+body.admin-mode {
+    --m-bg: #0b1120 !important;
+    --m-card: #111827 !important;
+    --m-text: #e2e8f0 !important;
+    --m-text-sub: #94a3b8 !important;
+    --m-text-muted: #64748b !important;
+    --m-border: #1f2937 !important;
+    --m-border-light: #172033 !important;
+}
+body.admin-mode .m-header {
+    background: #111827 !important;
+    background-image: none !important;
+    border-bottom: 1px solid #1f2937 !important;
+}
+body.admin-mode .m-logo,
+body.admin-mode .m-links a {
+    color: #cbd5e1 !important;
+}
+body.admin-mode .m-links a:hover { color: #60a5fa !important; }
+body.admin-mode .m-ava { color: #fff !important; }
+body.admin-mode .m-post-title,
+body.admin-mode .m-detail-title,
+body.admin-mode .m-widget-title { color: #f1f5f9 !important; }
+body.admin-mode .m-chip {
+    background: #111827 !important;
+    border-color: #1f2937 !important;
+    color: #94a3b8 !important;
+}
+body.admin-mode .m-chip.on {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+}
+body.admin-mode .m-pager a {
+    background: #111827 !important;
+    border-color: #1f2937 !important;
+    color: #cbd5e1 !important;
+}
+body.admin-mode .m-pager a.on {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #fff !important;
+}
+
+/* ============================ 后台控制台：四大管理入口 ============================ */
+.console-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+    margin-top: 0.4rem;
+}
+.console-card {
+    display: block;
+    padding: 1.15rem 1.2rem;
+    border-radius: 14px;
+    border: 1px solid #1f2937;
+    background: #111827;
+    text-decoration: none;
+    transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.console-card:hover {
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+    box-shadow: 0 10px 22px -10px rgba(59, 130, 246, .55);
+}
+.console-ic {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: .7rem;
+}
+.console-ic .i { width: 22px; height: 22px; }
+.console-card h4 { margin: 0 0 .25rem; font-size: 1rem; color: #f1f5f9; }
+.console-card p { margin: 0; font-size: .8rem; color: #94a3b8; line-height: 1.5; }
+.console-card .go { display: inline-block; margin-top: .6rem; font-size: .78rem; color: #60a5fa; }

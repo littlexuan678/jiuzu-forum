@@ -552,3 +552,17 @@
   .m-search { display: none; }
   .m-main { padding: 0 0.75rem; }
 }
+
+/* ============================ 个人中心 ============================ */
+.profile-main { align-items: start; }
+.avatar-row { display: flex; align-items: center; gap: 1.1rem; margin-bottom: 1.2rem; }
+.avatar-big {
+  width: 78px; height: 78px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.9rem; font-weight: 700; color: #fff;
+  object-fit: cover; background: var(--m-primary);
+  border: 3px solid var(--m-card); box-shadow: 0 0 0 1px var(--m-border);
+  flex: 0 0 auto;
+}
+[data-theme="dark"] .avatar-big { border-color: var(--m-card); }
+[data-theme="dark"] .m-btn.ghost { background: var(--m-card); border-color: var(--m-border); color: var(--m-text-sub); }

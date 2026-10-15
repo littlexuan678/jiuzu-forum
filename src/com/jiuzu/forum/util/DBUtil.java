@@ -164,7 +164,8 @@ public class DBUtil {
     private static void migrate() throws SQLException {
         String[] alters = {
                 "ALTER TABLE t_reply ADD COLUMN image_path TEXT",
-                "ALTER TABLE t_post ADD COLUMN image_path TEXT"
+                "ALTER TABLE t_post ADD COLUMN image_path TEXT",
+                "ALTER TABLE t_user ADD COLUMN avatar TEXT"
         };
         Connection conn = getConnection();
         try (Statement st = conn.createStatement()) {

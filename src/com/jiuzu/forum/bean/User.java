@@ -26,6 +26,8 @@ public class User implements Serializable {
     private String nickname;
     /** 头像底色，用于渲染纯色头像 */
     private String avatarColor;
+    /** 自定义头像图片地址（个人中心上传），为空时显示文字头像 */
+    private String avatar;
     /** 角色：0 普通用户，1 管理员 */
     private Integer role;
     /** 是否封禁：0 正常，1 已封禁 */
@@ -102,6 +104,19 @@ public class User implements Serializable {
 
     public void setAvatarColor(String avatarColor) {
         this.avatarColor = avatarColor;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    /** 头像展示地址：有上传图片用图片，否则返回 null 由页面渲染文字头像 */
+    public String getAvatarUrl() {
+        return (avatar == null || avatar.trim().isEmpty()) ? null : avatar;
     }
 
     public Integer getRole() {

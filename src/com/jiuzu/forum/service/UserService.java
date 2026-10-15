@@ -75,6 +75,48 @@ public class UserService {
         return user;
     }
 
+    /**
+     * 更新个人资料：昵称 + 头像
+     *
+     * @param userId   用户 ID
+     * @param nickname 昵称（可中文，1~20 字）
+     * @param avatar   头像图片地址，可为空表示使用文字头像
+     */
+    public void updateProfile(int userId, String nickname, String avatar) {
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("昵称不能为空");
+        }
+        if (nickname.trim().length() > 20) {
+            throw new IllegalArgumentException("昵称不能超过 20 个字");
+        }
+        String av = (avatar == null || avatar.trim().isEmpty()) ? null : avatar.trim();
+        if (av != null && av.length() > 200) {
+            throw new IllegalArgumentException("头像地址不合法");
+        }
+        userDao.updateProfile(userId, nickname.trim(), av);
+    }
+
+    /**
+     * 修改密码：需校验原密码
+     *
+     * @param userId  用户 ID
+     * @param oldPwd  原密码（明文）
+     * @param newPwd  新密码（明文，6~20 位）
+     * @param current 当前用户对象（含数据库中的密码）
+     */
+    public void changePassword(int userId, String oldPwd, String newPwd, User current) {
+        if (oldPwd == null || !Md5Util.md5(oldPwd).equals(current.getPassword())) {
+            throw new IllegalArgumentException("原密码不正确");
+        }
+        if (newPwd == null || newPwd.length() < 6 || newPwd.length() > 20) {
+            throw new IllegalArgumentException("新密码长度需在 6~20 位之间");
+        }
+        if (oldPwd.equals(newPwd)) {
+            throw new IllegalArgumentException("新密码不能与原密码相同");
+        }
+        userDao.updatePassword(userId, Md5Util.md5(newPwd));
+    }
+
     /** 修改昵称 */
     public void updateNickname(int userId, String nickname) {
         if (nickname == null || nickname.trim().isEmpty()) {
