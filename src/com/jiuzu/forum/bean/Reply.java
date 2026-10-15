@@ -1,5 +1,7 @@
 package com.jiuzu.forum.bean;
 
+import com.jiuzu.forum.util.IpUtil;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -27,6 +29,10 @@ public class Reply implements Serializable {
     private String content;
     /** 回复附带的图片路径（相对地址，如 /uploads/replies/xxx.jpg），无图则为 null */
     private String imagePath;
+    /** 回复时的客户端 IP（仅后台可见） */
+    private String ip;
+    /** IP 属地文案，前台展示用 */
+    private String ipLoc;
     /** 所属帖子标题（联表） */
     private String postTitle;
     /** 所属板块名称（联表） */
@@ -112,6 +118,33 @@ public class Reply implements Serializable {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getIpLoc() {
+        return ipLoc;
+    }
+
+    public void setIpLoc(String ipLoc) {
+        this.ipLoc = ipLoc;
+    }
+
+    /** 前台展示的 IP 属地，老数据无属地时按 IP 现算并打码 */
+    public String getIpDisplay() {
+        if (ipLoc != null && !ipLoc.trim().isEmpty()) {
+            return ipLoc;
+        }
+        if (ip == null || ip.trim().isEmpty()) {
+            return null;
+        }
+        return IpUtil.getLocation(ip);
     }
 
     public String getPostTitle() {

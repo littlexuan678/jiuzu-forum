@@ -676,3 +676,24 @@
   .badge-name { max-width: 64px; }
   .badge-tag { display: none; }
 }
+
+/* ============================ IP 属地徽章 ============================ */
+.m-ip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: 9999px;
+  background: var(--m-border-light);
+  border: 1px solid var(--m-border);
+  color: var(--m-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+[data-theme="dark"] .m-ip {
+  background: rgba(148, 163, 184, .12);
+  border-color: var(--m-border);
+  color: var(--m-text-sub);
+}

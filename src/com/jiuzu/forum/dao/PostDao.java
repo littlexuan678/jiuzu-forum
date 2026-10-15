@@ -35,6 +35,17 @@ public class PostDao extends BaseDao {
             p.setTitle(rs.getString("title"));
             p.setContent(rs.getString("content"));
             p.setImagePath(rs.getString("image_path"));
+            // IP 相关列是后加的，旧库可能还没有，读不到就留空
+            try {
+                p.setIp(rs.getString("ip"));
+            } catch (SQLException ignored) {
+                // 列不存在，忽略
+            }
+            try {
+                p.setIpLoc(rs.getString("ip_loc"));
+            } catch (SQLException ignored) {
+                // 列不存在，忽略
+            }
             p.setUserId(rs.getInt("user_id"));
             p.setNickname(rs.getString("nickname"));
             p.setAvatarColor(rs.getString("avatar_color"));
@@ -125,14 +136,14 @@ public class PostDao extends BaseDao {
         return queryOne(SELECT_POST + " WHERE p.id=?", new Object[]{id}, POST_MAPPER);
     }
 
-    /** 新增帖子 */
+    /** 新增帖子（同时记录发布 IP 与属地） */
     public int insert(Post post) {
-        String sql = "INSERT INTO t_post(board_id,title,content,image_path,user_id,views,likes,pinned,created_time,updated_time) " +
-                "VALUES(?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO t_post(board_id,title,content,image_path,user_id,views,likes,pinned,created_time,updated_time,ip,ip_loc) " +
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
         long now = System.currentTimeMillis();
         return update(sql, new Object[]{
                 post.getBoardId(), post.getTitle(), post.getContent(), post.getImagePath(), post.getUserId(),
-                0, 0, post.getPinned(), now, now
+                0, 0, post.getPinned(), now, now, post.getIp(), post.getIpLoc()
         });
     }
 

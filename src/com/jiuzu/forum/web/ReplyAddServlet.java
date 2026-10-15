@@ -2,6 +2,7 @@ package com.jiuzu.forum.web;
 
 import com.jiuzu.forum.bean.User;
 import com.jiuzu.forum.service.ReplyService;
+import com.jiuzu.forum.util.IpUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -37,8 +38,12 @@ public class ReplyAddServlet extends BaseServlet {
             }
         }
 
+        // 记录回复 IP 与属地（前台只展示属地，完整 IP 供后台查看）
+        String ip = IpUtil.getClientIp(req);
+        String ipLoc = IpUtil.getLocation(ip);
+
         try {
-            replyService.create(postId, content, user, imagePath);
+            replyService.create(postId, content, user, imagePath, ip, ipLoc);
         } catch (IllegalArgumentException | SecurityException e) {
             req.getSession().setAttribute("flashError", e.getMessage());
         }

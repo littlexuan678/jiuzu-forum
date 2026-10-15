@@ -37,6 +37,7 @@
             <th style="width:150px">所属帖子</th>
             <th style="width:90px">板块</th>
             <th style="width:120px">作者</th>
+            <th style="width:140px">来源 IP</th>
             <th style="width:130px">时间</th>
             <th style="width:80px">操作</th>
         </tr>
@@ -44,7 +45,7 @@
         <tbody>
         <c:choose>
             <c:when test="${empty pageBean.list}">
-                <tr><td colspan="7" style="text-align:center;padding:40px" class="muted">暂无回复</td></tr>
+                <tr><td colspan="8" style="text-align:center;padding:40px" class="muted">暂无回复</td></tr>
             </c:when>
             <c:otherwise>
                 <c:forEach items="${pageBean.list}" var="r">
@@ -61,6 +62,17 @@
                         </td>
                         <td><c:out value="${r.boardName}"/></td>
                         <td><c:out value="${r.nickname}"/></td>
+                        <td class="muted" style="font-size:12px">
+                            <c:choose>
+                                <c:when test="${not empty r.ip}">
+                                    <c:out value="${r.ip}"/>
+                                    <c:if test="${not empty r.ipLoc}">
+                                        <div style="font-size:11px;opacity:.75"><c:out value="${r.ipLoc}"/></div>
+                                    </c:if>
+                                </c:when>
+                                <c:otherwise>—</c:otherwise>
+                            </c:choose>
+                        </td>
                         <td class="muted" style="font-size:12px">
                             <fmt:formatDate value="${r.createdDate}" pattern="yyyy-MM-dd HH:mm"/>
                         </td>

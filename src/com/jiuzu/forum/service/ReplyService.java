@@ -31,6 +31,20 @@ public class ReplyService {
      * @param imagePath 回复附带的图片相对路径，无图传 null
      */
     public void create(int postId, String content, User user, String imagePath) {
+        create(postId, content, user, imagePath, null, null);
+    }
+
+    /**
+     * 发表回复（带发布 IP 与属地）
+     *
+     * @param postId    帖子 ID
+     * @param content   回复内容（可为空，但需至少带一张图片）
+     * @param user      回复者
+     * @param imagePath 回复附带的图片相对路径，无图传 null
+     * @param ip        客户端 IP，可为 null
+     * @param ipLoc     IP 属地文案，可为 null
+     */
+    public void create(int postId, String content, User user, String imagePath, String ip, String ipLoc) {
         if (postDao.findById(postId) == null) {
             throw new IllegalArgumentException("帖子不存在或已被删除");
         }
@@ -49,6 +63,8 @@ public class ReplyService {
         if (hasImage) {
             reply.setImagePath(imagePath);
         }
+        reply.setIp(ip);
+        reply.setIpLoc(ipLoc);
         replyDao.insert(reply);
     }
 

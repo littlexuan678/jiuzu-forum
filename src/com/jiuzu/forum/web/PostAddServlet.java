@@ -5,6 +5,7 @@ import com.jiuzu.forum.bean.Post;
 import com.jiuzu.forum.bean.User;
 import com.jiuzu.forum.service.BoardService;
 import com.jiuzu.forum.service.PostService;
+import com.jiuzu.forum.util.IpUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,9 @@ public class PostAddServlet extends BaseServlet {
         post.setBoardId(parseInt(mp ? getMultipartString(req, "boardId") : getStringParam(req, "boardId"), 0));
         post.setTitle(mp ? getMultipartString(req, "title") : getStringParam(req, "title"));
         post.setContent(mp ? getMultipartString(req, "content") : getStringParam(req, "content"));
+        // 记录发布 IP 与属地（前台只展示属地，完整 IP 供后台查看）
+        post.setIp(IpUtil.getClientIp(req));
+        post.setIpLoc(IpUtil.getLocation(post.getIp()));
 
         String imagePath = null;
         if (mp) {

@@ -165,7 +165,11 @@ public class DBUtil {
         String[] alters = {
                 "ALTER TABLE t_reply ADD COLUMN image_path TEXT",
                 "ALTER TABLE t_post ADD COLUMN image_path TEXT",
-                "ALTER TABLE t_user ADD COLUMN avatar TEXT"
+                "ALTER TABLE t_user ADD COLUMN avatar TEXT",
+                "ALTER TABLE t_post ADD COLUMN ip TEXT",
+                "ALTER TABLE t_post ADD COLUMN ip_loc TEXT",
+                "ALTER TABLE t_reply ADD COLUMN ip TEXT",
+                "ALTER TABLE t_reply ADD COLUMN ip_loc TEXT"
         };
         Connection conn = getConnection();
         try (Statement st = conn.createStatement()) {

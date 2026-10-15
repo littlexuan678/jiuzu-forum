@@ -35,6 +35,7 @@
             <th>标题</th>
             <th style="width:110px">板块</th>
             <th style="width:100px">作者</th>
+            <th style="width:150px">来源 IP</th>
             <th style="width:130px">数据</th>
             <th style="width:170px">操作</th>
         </tr>
@@ -42,7 +43,7 @@
         <tbody>
         <c:choose>
             <c:when test="${empty pageBean.list}">
-                <tr><td colspan="6" style="text-align:center;padding:40px" class="muted">暂无帖子</td></tr>
+                <tr><td colspan="7" style="text-align:center;padding:40px" class="muted">暂无帖子</td></tr>
             </c:when>
             <c:otherwise>
                 <c:forEach items="${pageBean.list}" var="p">
@@ -54,6 +55,17 @@
                         </td>
                         <td><span class="tag-board"><c:out value="${p.boardName}"/></span></td>
                         <td><c:out value="${p.nickname}"/></td>
+                        <td class="muted" style="font-size:12px">
+                            <c:choose>
+                                <c:when test="${not empty p.ip}">
+                                    <c:out value="${p.ip}"/>
+                                    <c:if test="${not empty p.ipLoc}">
+                                        <div style="font-size:11px;opacity:.75"><c:out value="${p.ipLoc}"/></div>
+                                    </c:if>
+                                </c:when>
+                                <c:otherwise>—</c:otherwise>
+                            </c:choose>
+                        </td>
                         <td class="muted" style="font-size:12px">
                             <span class="tbl-stat"><svg class="i"><use href="#i-eye"></use></svg><c:out value="${p.views}"/></span>
                             <span class="tbl-stat"><svg class="i"><use href="#i-chat"></use></svg><c:out value="${p.replies}"/></span>

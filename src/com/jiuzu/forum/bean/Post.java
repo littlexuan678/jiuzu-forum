@@ -1,5 +1,7 @@
 package com.jiuzu.forum.bean;
 
+import com.jiuzu.forum.util.IpUtil;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -28,6 +30,10 @@ public class Post implements Serializable {
     private String content;
     /** 帖子附带的封面 / 配图相对路径（如 /uploads/posts/xxx.jpg），无图则为 null */
     private String imagePath;
+    /** 发布时的客户端 IP（仅后台可见，前台不展示） */
+    private String ip;
+    /** IP 属地文案（如「广东省广州市 电信」「本机」），前台展示用 */
+    private String ipLoc;
     /** 作者 ID */
     private Integer userId;
     /** 作者昵称（联表） */
@@ -139,6 +145,37 @@ public class Post implements Serializable {
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public String getIpLoc() {
+        return ipLoc;
+    }
+
+    public void setIpLoc(String ipLoc) {
+        this.ipLoc = ipLoc;
+    }
+
+    /**
+     * 前台展示的 IP 属地：库里有属地就用属地，否则用 IP 现算一次并打码
+     * （老数据没有属地列时也能正常显示）
+     */
+    public String getIpDisplay() {
+        if (ipLoc != null && !ipLoc.trim().isEmpty()) {
+            return ipLoc;
+        }
+        // 老数据没有记录 IP，直接返回 null，页面不展示该徽章
+        if (ip == null || ip.trim().isEmpty()) {
+            return null;
+        }
+        return IpUtil.getLocation(ip);
     }
 
     public Integer getUserId() {

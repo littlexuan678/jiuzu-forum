@@ -29,6 +29,16 @@ public class ReplyDao extends BaseDao {
             r.setUserId(rs.getInt("user_id"));
             r.setContent(rs.getString("content"));
             r.setImagePath(rs.getString("image_path"));
+            try {
+                r.setIp(rs.getString("ip"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，忽略
+            }
+            try {
+                r.setIpLoc(rs.getString("ip_loc"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，忽略
+            }
             r.setCreatedTime(rs.getLong("created_time"));
             r.setNickname(rs.getString("nickname"));
             r.setAvatarColor(rs.getString("avatar_color"));
@@ -49,11 +59,12 @@ public class ReplyDao extends BaseDao {
         return queryOne(SELECT_REPLY + " WHERE r.id=?", new Object[]{id}, REPLY_MAPPER);
     }
 
-    /** 新增回复 */
+    /** 新增回复（同时记录回复 IP 与属地） */
     public int insert(Reply reply) {
-        String sql = "INSERT INTO t_reply(post_id,user_id,content,image_path,created_time) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO t_reply(post_id,user_id,content,image_path,created_time,ip,ip_loc) VALUES(?,?,?,?,?,?,?)";
         return update(sql, new Object[]{reply.getPostId(), reply.getUserId(),
-                reply.getContent(), reply.getImagePath(), System.currentTimeMillis()});
+                reply.getContent(), reply.getImagePath(), System.currentTimeMillis(),
+                reply.getIp(), reply.getIpLoc()});
     }
 
     /** 删除回复 */

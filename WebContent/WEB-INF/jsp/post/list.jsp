@@ -117,6 +117,9 @@
                                 <div class="m-meta">
                                     <span class="who"><c:out value="${p.nickname}"/></span>
                                     <span><c:out value="${p.createdText}"/></span>
+                                    <c:if test="${not empty p.ipDisplay}">
+                                        <span class="m-ip" title="IP 属地">📍<c:out value="${p.ipDisplay}"/></span>
+                                    </c:if>
                                     <span><svg class="i"><use href="#i-eye"></use></svg><c:out value="${p.views}"/></span>
                                     <span><svg class="i"><use href="#i-chat"></use></svg><c:out value="${p.replies}"/></span>
                                     <span><svg class="i"><use href="#i-heart"></use></svg><c:out value="${p.likes}"/></span>

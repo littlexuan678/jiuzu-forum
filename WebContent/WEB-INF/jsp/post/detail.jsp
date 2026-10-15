@@ -35,6 +35,9 @@
                         <c:out value="${post.nickname}"/>
                     </span>
                     <span><c:out value="${post.createdText}"/></span>
+                    <c:if test="${not empty post.ipDisplay}">
+                        <span class="m-ip" title="IP 属地">📍<c:out value="${post.ipDisplay}"/></span>
+                    </c:if>
                     <span><svg class="i"><use href="#i-eye"></use></svg><c:out value="${post.views}"/> 次浏览</span>
                     <span><svg class="i"><use href="#i-chat"></use></svg><c:out value="${post.replies}"/> 条回复</span>
                 </div>
@@ -103,6 +106,9 @@
                                     <div>
                                         <strong style="color:var(--m-text)"><c:out value="${r.nickname}"/></strong>
                                         <span style="margin-left:8px"><c:out value="${r.createdText}"/></span>
+                                        <c:if test="${not empty r.ipDisplay}">
+                                            <span class="m-ip" title="IP 属地">📍<c:out value="${r.ipDisplay}"/></span>
+                                        </c:if>
                                     </div>
                                     <div style="display:flex;align-items:center;gap:8px">
                                         <span class="m-floor">#${vs.count} 楼</span>
