@@ -467,6 +467,65 @@
 }
 .m-lightbox img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
 
+/* ============================ 沉浸式编辑器（发帖 / 编辑）============================ */
+.editor-main { grid-template-columns: 1fr 300px; align-items: start; }
+.editor-card { padding: 1.5rem; }
+.editor-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.25rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--m-border);
+}
+.editor-title { font-size: 1.2rem; font-weight: 700; color: var(--m-text); display: flex; align-items: center; gap: 8px; margin: 0; }
+
+.toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 7px 10px;
+  background: var(--m-bg);
+  border: 1px solid var(--m-border);
+  border-bottom: none;
+  border-radius: var(--m-radius-md) var(--m-radius-md) 0 0;
+}
+.tool-btn {
+  background: #fff; border: 1px solid var(--m-border);
+  color: var(--m-text-sub);
+  padding: 4px 10px; border-radius: var(--m-radius-sm);
+  font-size: 0.8rem; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 4px;
+  transition: all 0.15s ease;
+}
+.tool-btn:hover { border-color: var(--m-primary); color: var(--m-primary); background: var(--m-primary-light); }
+.tool-btn.primary { background: var(--m-primary); color: #fff; border-color: var(--m-primary); }
+.tool-btn.primary:hover { background: var(--m-primary-hover); color: #fff; }
+.tool-hint { margin-left: auto; font-size: 0.75rem; color: var(--m-text-muted); }
+
+.editor-textarea {
+  min-height: 380px;
+  border-radius: 0 0 var(--m-radius-md) var(--m-radius-md);
+  border-top: 1px solid var(--m-border);
+  line-height: 1.8;
+}
+.tips-card { position: sticky; top: 76px; }
+
+/* 正文渲染出的 Markdown 元素 */
+.md-img { max-width: 100%; border-radius: var(--m-radius-md); border: 1px solid var(--m-border); cursor: zoom-in; margin: 0.5rem 0; }
+.md-pre {
+  background: var(--m-bg); border: 1px solid var(--m-border);
+  border-radius: var(--m-radius-md); padding: 0.7rem 0.9rem;
+  overflow-x: auto; margin: 0.6rem 0;
+  font-family: Consolas, Menlo, monospace; font-size: 0.85rem; line-height: 1.6;
+}
+.md-code { background: var(--m-border-light); border-radius: 4px; padding: 1px 5px; font-family: Consolas, Menlo, monospace; font-size: 0.88em; }
+.md-quote {
+  border-left: 3px solid var(--m-primary); padding: 0.2rem 0 0.2rem 0.7rem;
+  color: var(--m-text-sub); margin: 0.4rem 0;
+}
+.md-hr { border: none; border-top: 1px solid var(--m-border); margin: 0.9rem 0; }
+
+@media (max-width: 900px) {
+  .editor-main { grid-template-columns: 1fr; }
+  .tips-card { position: static; }
+  .editor-textarea { min-height: 260px; }
+}
+
 /* ============================ 深色模式（配合 v8 的主题开关）============================ */
 [data-theme="dark"] {
   --m-bg: #0b1120;

@@ -82,6 +82,20 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>UploadServlet</servlet-name>
+        <servlet-class>com.jiuzu.forum.web.UploadServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>5242880</max-file-size>
+            <max-request-size>10485760</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UploadServlet</servlet-name>
+        <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>PostEditServlet</servlet-name>
         <servlet-class>com.jiuzu.forum.web.PostEditServlet</servlet-class>
         <multipart-config>

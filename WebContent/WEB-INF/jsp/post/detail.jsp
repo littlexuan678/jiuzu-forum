@@ -40,7 +40,8 @@
                 </div>
             </div>
 
-            <div class="m-detail-body"><c:out value="${post.content}"/></div>
+            <%-- 正文：由 MarkupUtil 渲染（先转义再放行图片/加粗/代码等轻量语法）--%>
+            <div class="m-detail-body">${post.contentHtml}</div>
 
             <%-- 帖子配图 --%>
             <c:if test="${not empty post.imagePath}">
@@ -112,7 +113,7 @@
                                         </c:if>
                                     </div>
                                 </div>
-                                <div class="m-reply-body"><c:out value="${r.content}"/></div>
+                                <div class="m-reply-body">${r.contentHtml}</div>
                                 <c:if test="${not empty r.imagePath}">
                                     <img src="${ctx}${r.imagePath}" alt="回复配图" data-zoom loading="lazy">
                                 </c:if>

@@ -62,13 +62,22 @@ public class Post implements Serializable {
         return com.jiuzu.forum.util.TimeUtil.friendly(createdTime);
     }
 
-    /** 正文摘要：去掉换行并截取前 100 个字符 */
+    /** 正文摘要：去掉 Markdown 标记与换行后截取前 100 个字符 */
     public String getSummary() {
         if (content == null) {
             return "";
         }
-        String text = content.replaceAll("\\s+", " ").trim();
+        String text = com.jiuzu.forum.util.MarkupUtil.plain(content);
         return text.length() > 100 ? text.substring(0, 100) + "…" : text;
+    }
+
+    /**
+     * 正文渲染结果（已做 HTML 转义，可直接在页面输出）
+     *
+     * <p>支持 ![]() 图片、**加粗**、`代码`、```代码块```、&gt; 引用、--- 分割线。</p>
+     */
+    public String getContentHtml() {
+        return com.jiuzu.forum.util.MarkupUtil.render(content);
     }
 
     /** 是否为置顶帖 */

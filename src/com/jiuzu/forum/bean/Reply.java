@@ -46,6 +46,11 @@ public class Reply implements Serializable {
         return com.jiuzu.forum.util.TimeUtil.friendly(createdTime);
     }
 
+    /** 回复正文渲染结果（已转义，支持 ![]() 图片、**加粗**、`代码` 等轻量语法） */
+    public String getContentHtml() {
+        return com.jiuzu.forum.util.MarkupUtil.render(content);
+    }
+
     public String getAvatarText() {
         if (nickname == null || nickname.isEmpty()) {
             return "?";
