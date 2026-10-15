@@ -11,6 +11,7 @@
     <title><c:out value="${empty pageTitle ? '首页' : pageTitle}"/> - 九组论坛</title>
     <script>try{var t=localStorage.getItem('forum-theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}</script>
     <link rel="stylesheet" href="${ctx}/static/css/style.v8.css">
+    <link rel="stylesheet" href="${ctx}/static/css/style.v9.css">
     <link rel="stylesheet" href="${ctx}/static/css/admin.css">
 </head>
 <body>
@@ -47,44 +48,46 @@
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14"/><polyline points="19 12 12 19 5 12"/></symbol>
 </svg>
 
-<header class="header" id="top">
-    <div class="inner">
-        <button class="burger" id="burger" type="button" aria-label="菜单"><svg class="i"><use href="#i-menu"></use></svg></button>
+<header class="m-header" id="top">
+    <div class="m-nav">
+        <button class="m-icon-btn m-burger" id="burger" type="button" aria-label="菜单"><svg class="i"><use href="#i-menu"></use></svg></button>
 
-        <a class="logo" href="${ctx}/posts">
+        <a class="m-logo" href="${ctx}/posts">
             <img src="${ctx}/static/images/logo.png" alt="九组论坛">
-            <b>九组论坛</b>
+            <span>九组论坛</span>
+            <span class="m-badge">社区</span>
         </a>
 
-        <div class="nav-pill">
-            <nav class="nav-links">
-                <a href="${ctx}/posts">首页</a>
-                <a href="${ctx}/ai">AI 助手</a>
-                <c:if test="${sessionScope.user.admin}">
-                    <a href="${ctx}/admin?op=posts">管理后台</a>
-                </c:if>
-            </nav>
-            <div class="top-search">
-                <form action="${ctx}/posts" method="get">
-                    <input type="text" name="kw" value="<c:out value='${kw}'/>" placeholder="搜索…">
-                    <button type="submit" aria-label="搜索"><svg class="i"><use href="#i-search"></use></svg></button>
-                </form>
-            </div>
+        <nav class="m-links">
+            <a class="m-link ${empty boardId || boardId == 0 ? 'on' : ''}" href="${ctx}/posts">首页</a>
+            <a class="m-link" href="${ctx}/ai"><svg class="i"><use href="#i-spark"></use></svg>AI 助手</a>
+            <c:if test="${sessionScope.user.admin}">
+                <a class="m-link" href="${ctx}/admin?op=posts" style="color:#d97706">管理后台</a>
+            </c:if>
+        </nav>
+
+        <span class="m-spacer"></span>
+
+        <div class="m-search">
+            <form action="${ctx}/posts" method="get">
+                <input type="text" name="kw" value="<c:out value='${kw}'/>" placeholder="搜索帖子…">
+                <button type="submit" aria-label="搜索"><svg class="i"><use href="#i-search"></use></svg></button>
+            </form>
         </div>
 
-        <button class="theme-toggle" id="themeToggle" type="button" title="切换深色 / 浅色"><svg class="i"><use href="#i-moon"></use></svg></button>
+        <button class="m-icon-btn" id="themeToggle" type="button" title="切换深色 / 浅色"><svg class="i"><use href="#i-moon"></use></svg></button>
 
-        <div class="top-user">
+        <div class="m-user">
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <span class="ava" style="background:${sessionScope.user.avatarColor}">
+                    <span class="m-ava" style="background:${sessionScope.user.avatarColor}">
                         <c:out value="${sessionScope.user.avatarText}"/>
                     </span>
-                    <span class="uname"><c:out value="${sessionScope.user.nickname}"/></span>
-                    <a class="btn ghost sm" href="${ctx}/logout">退出</a>
+                    <span><c:out value="${sessionScope.user.nickname}"/></span>
+                    <a class="m-btn ghost sm" href="${ctx}/logout">退出</a>
                 </c:when>
                 <c:otherwise>
-                    <a class="btn sm" href="${ctx}/login">登录 / 注册</a>
+                    <a class="m-btn primary sm" href="${ctx}/login">登录 / 注册</a>
                 </c:otherwise>
             </c:choose>
         </div>

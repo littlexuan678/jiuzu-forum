@@ -22,3 +22,11 @@ _deploy/
 
 # DeepSeek API 密钥配置，不入库
 WebContent/WEB-INF/config.properties
+
+# 本地备份与临时脚本，不进仓库
+_backup_*/
+_deploy/
+_smoke_*.py
+_remote_verify.py
+_restore_demo.py
+gen_users_replies.py
