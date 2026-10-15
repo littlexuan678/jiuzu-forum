@@ -608,3 +608,71 @@
 }
 [data-theme="dark"] .avatar-big { border-color: var(--m-card); }
 [data-theme="dark"] .m-btn.ghost { background: var(--m-card); border-color: var(--m-border); color: var(--m-text-sub); }
+
+/* ============================ 顶部导航：醒目个人中心胶囊 ============================ */
+.user-profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 6px;
+  border-radius: 9999px;
+  background: var(--m-card);
+  border: 1px solid var(--m-primary);
+  color: var(--m-text);
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: background .2s, color .2s, transform .2s, box-shadow .2s;
+  box-shadow: 0 0 10px rgba(37, 99, 235, .22);
+  max-width: 220px;
+}
+.user-profile-badge:hover {
+  background: var(--m-primary);
+  color: #fff;
+  border-color: var(--m-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(37, 99, 235, .45);
+}
+.badge-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--m-primary);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem;
+  overflow: hidden; flex-shrink: 0;
+}
+.badge-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.badge-name {
+  font-weight: 600;
+  max-width: 110px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.badge-tag {
+  font-size: 0.7rem;
+  background: var(--m-primary-light);
+  color: var(--m-primary);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(37, 99, 235, .3);
+  flex-shrink: 0;
+}
+.user-profile-badge:hover .badge-tag {
+  background: rgba(255, 255, 255, .22);
+  color: #fff;
+  border-color: rgba(255, 255, 255, .45);
+}
+[data-theme="dark"] .user-profile-badge {
+  background: var(--m-card);
+  border-color: #3b82f6;
+  color: var(--m-text);
+}
+[data-theme="dark"] .badge-tag {
+  background: rgba(59, 130, 246, .22);
+  color: #93c5fd;
+  border-color: rgba(147, 197, 253, .3);
+}
+@media (max-width: 640px) {
+  .user-profile-badge { padding: 3px 8px 3px 4px; gap: 6px; }
+  .badge-name { max-width: 64px; }
+  .badge-tag { display: none; }
+}

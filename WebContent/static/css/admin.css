@@ -352,3 +352,35 @@ body.admin-mode .m-pager a.on {
 .console-card h4 { margin: 0 0 .25rem; font-size: 1rem; color: #f1f5f9; }
 .console-card p { margin: 0; font-size: .8rem; color: #94a3b8; line-height: 1.5; }
 .console-card .go { display: inline-block; margin-top: .6rem; font-size: .78rem; color: #60a5fa; }
+
+/* 后台里个人中心胶囊也要保持深色可读（避免被后台统一的蓝链接色覆盖） */
+body.admin-mode .user-profile-badge {
+    background: #111827 !important;
+    border-color: #3b82f6 !important;
+    color: #e2e8f0 !important;
+}
+body.admin-mode .user-profile-badge:hover {
+    background: #2563eb !important;
+    color: #fff !important;
+}
+body.admin-mode .badge-tag {
+    background: rgba(59, 130, 246, .22) !important;
+    color: #93c5fd !important;
+    border-color: rgba(147, 197, 253, .3) !important;
+}
+
+/* 后台里个人中心胶囊也要保持深色可读（避免被后台统一的蓝链接色覆盖） */
+body.admin-mode .user-profile-badge {
+    background: #111827 !important;
+    border-color: #3b82f6 !important;
+    color: #e2e8f0 !important;
+}
+body.admin-mode .user-profile-badge:hover {
+    background: #2563eb !important;
+    color: #fff !important;
+}
+body.admin-mode .badge-tag {
+    background: rgba(59, 130, 246, .22) !important;
+    color: #93c5fd !important;
+    border-color: rgba(147, 197, 253, .3) !important;
+}

@@ -80,18 +80,20 @@
         <div class="m-user">
             <c:choose>
                 <c:when test="${not empty sessionScope.user}">
-                    <a href="${ctx}/user/profile" title="个人中心" style="display:flex;align-items:center;gap:8px">
-                        <c:choose>
-                            <c:when test="${not empty sessionScope.user.avatarUrl}">
-                                <img class="m-ava" src="<c:out value='${sessionScope.user.avatar}'/>" alt="头像" style="object-fit:cover">
-                            </c:when>
-                            <c:otherwise>
-                                <span class="m-ava" style="background:${sessionScope.user.avatarColor}">
+                    <%-- 醒目的个人中心常驻入口：小头像 + 昵称 + “个人中心”胶囊标签 --%>
+                    <a class="user-profile-badge" href="${ctx}/user/profile" title="个人中心">
+                        <span class="badge-avatar"<c:if test="${empty sessionScope.user.avatarUrl}"> style="background:${sessionScope.user.avatarColor}"</c:if>>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                    <img src="<c:out value='${sessionScope.user.avatar}'/>" alt="头像">
+                                </c:when>
+                                <c:otherwise>
                                     <c:out value="${sessionScope.user.avatarText}"/>
-                                </span>
-                            </c:otherwise>
-                        </c:choose>
-                        <span><c:out value="${sessionScope.user.nickname}"/></span>
+                                </c:otherwise>
+                            </c:choose>
+                        </span>
+                        <span class="badge-name"><c:out value="${sessionScope.user.nickname}"/></span>
+                        <span class="badge-tag">个人中心</span>
                     </a>
                     <a class="m-btn ghost sm" href="${ctx}/logout">退出</a>
                 </c:when>
