@@ -34,6 +34,7 @@ public class PostDao extends BaseDao {
             p.setBoardIcon(rs.getString("board_icon"));
             p.setTitle(rs.getString("title"));
             p.setContent(rs.getString("content"));
+            p.setImagePath(rs.getString("image_path"));
             p.setUserId(rs.getInt("user_id"));
             p.setNickname(rs.getString("nickname"));
             p.setAvatarColor(rs.getString("avatar_color"));
@@ -126,13 +127,19 @@ public class PostDao extends BaseDao {
 
     /** 新增帖子 */
     public int insert(Post post) {
-        String sql = "INSERT INTO t_post(board_id,title,content,user_id,views,likes,pinned,created_time,updated_time) " +
-                "VALUES(?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO t_post(board_id,title,content,image_path,user_id,views,likes,pinned,created_time,updated_time) " +
+                "VALUES(?,?,?,?,?,?,?,?,?,?)";
         long now = System.currentTimeMillis();
         return update(sql, new Object[]{
-                post.getBoardId(), post.getTitle(), post.getContent(), post.getUserId(),
+                post.getBoardId(), post.getTitle(), post.getContent(), post.getImagePath(), post.getUserId(),
                 0, 0, post.getPinned(), now, now
         });
+    }
+
+    /** 更新帖子的板块、标题、正文与配图（编辑用） */
+    public int updateContent(int id, int boardId, String title, String content, String imagePath) {
+        String sql = "UPDATE t_post SET board_id=?,title=?,content=?,image_path=?,updated_time=? WHERE id=?";
+        return update(sql, new Object[]{boardId, title, content, imagePath, System.currentTimeMillis(), id});
     }
 
     /** 删除帖子（关联的回复和点赞由 Service 层负责清理） */
@@ -189,6 +196,22 @@ public class PostDao extends BaseDao {
     public List<Post> findByUser(int userId, int start, int size) {
         return query(SELECT_POST + " WHERE p.user_id=? ORDER BY p.created_time DESC LIMIT ? OFFSET ?",
                 new Object[]{userId, size, start}, POST_MAPPER);
+    }
+
+    /** 查询某个板块下的全部帖子（删除板块时使用） */
+    public List<Post> findByBoard(int boardId) {
+        return query(SELECT_POST + " WHERE p.board_id=? ORDER BY p.created_time DESC",
+                new Object[]{boardId}, POST_MAPPER);
+    }
+
+    /** 删除某个板块下的全部帖子（连同回复/点赞由 Service 负责） */
+    public int deleteByBoardId(int boardId) {
+        return update("DELETE FROM t_post WHERE board_id=?", new Object[]{boardId});
+    }
+
+    /** 统计某个时间戳之后的帖子数（用于「今日新帖」统计） */
+    public int countSince(long ts) {
+        return count("SELECT COUNT(1) FROM t_post WHERE created_time>=?", new Object[]{ts});
     }
 
     /** 某个用户发帖总数 */

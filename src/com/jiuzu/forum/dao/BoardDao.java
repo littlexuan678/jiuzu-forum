@@ -63,4 +63,22 @@ public class BoardDao extends BaseDao {
     public int delete(int id) {
         return update("DELETE FROM t_board WHERE id=?", new Object[]{id});
     }
+
+    /** 更新板块信息 */
+    public int update(Board board) {
+        String sql = "UPDATE t_board SET name=?, icon=?, description=?, sort_order=? WHERE id=?";
+        return update(sql, new Object[]{board.getName(), board.getIcon(),
+                board.getDescription(), board.getSortOrder(), board.getId()});
+    }
+
+    /** 统计某板块下的帖子数 */
+    public int countPosts(int boardId) {
+        return count("SELECT COUNT(1) FROM t_post WHERE board_id=?", new Object[]{boardId});
+    }
+
+    /** 把某板块下的帖子整体迁移到另一个板块（删除板块前调用） */
+    public int movePosts(int fromBoardId, int toBoardId) {
+        return update("UPDATE t_post SET board_id=? WHERE board_id=?",
+                new Object[]{toBoardId, fromBoardId});
+    }
 }

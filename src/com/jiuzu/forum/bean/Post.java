@@ -26,6 +26,8 @@ public class Post implements Serializable {
     private String title;
     /** 正文 */
     private String content;
+    /** 帖子附带的封面 / 配图相对路径（如 /uploads/posts/xxx.jpg），无图则为 null */
+    private String imagePath;
     /** 作者 ID */
     private Integer userId;
     /** 作者昵称（联表） */
@@ -120,6 +122,14 @@ public class Post implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public Integer getUserId() {

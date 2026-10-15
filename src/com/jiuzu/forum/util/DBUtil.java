@@ -62,15 +62,11 @@ public class DBUtil {
             password = prop.getProperty("db.password", "");
         } else {
             Class.forName(SQLITE_DRIVER);
-            File dir = new File(webRealPath, "WEB-INF" + File.separator + "data");
-            if (!dir.exists() && !dir.mkdirs()) {
-                throw new IllegalStateException("无法创建数据目录：" + dir.getAbsolutePath());
-            }
-            File dbFile = new File(dir, "forum.db");
-            url = "jdbc:sqlite:" + dbFile.getAbsolutePath().replace("\\", "/");
+            url = "jdbc:sqlite:" + resolveSqliteFile(webRealPath).getAbsolutePath().replace("\\", "/");
         }
 
         createTables(useMySQL);
+        migrate();
         insertInitData();
         inited = true;
     }
@@ -120,9 +116,74 @@ public class DBUtil {
         close(conn);
     }
 
+    /**
+     * 决定 SQLite 数据库文件放在哪。
+     *
+     * <p>优先级：① 启动参数 -Dforum.db.file=绝对路径 ② $CATALINA_BASE/forum-data/forum.db
+     * ③ 应用内 WEB-INF/data/forum.db（兜底，覆盖部署会丢数据，不推荐）。</p>
+     *
+     * <p>放在 webapps 外面是为了避免重新部署 WAR 时被一起删掉——历史上踩过这个坑。</p>
+     */
+    private static File resolveSqliteFile(String webRealPath) {
+        String custom = System.getProperty("forum.db.file", "").trim();
+        if (!custom.isEmpty()) {
+            File f = new File(custom);
+            File parent = f.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new IllegalStateException("无法创建外部数据目录：" + parent.getAbsolutePath());
+            }
+            return f;
+        }
+        String catalinaBase = System.getProperty("catalina.base", "").trim();
+        if (!catalinaBase.isEmpty()) {
+            File dir = new File(catalinaBase, "forum-data");
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new IllegalStateException("无法创建外部数据目录：" + dir.getAbsolutePath());
+            }
+            return new File(dir, "forum.db");
+        }
+        File dir = new File(webRealPath, "WEB-INF" + File.separator + "data");
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IllegalStateException("无法创建数据目录：" + dir.getAbsolutePath());
+        }
+        return new File(dir, "forum.db");
+    }
+
     /** 是否 SQLite 模式（不同数据库的主键自增写法不同） */
     private static boolean isSqlite() {
         return url != null && url.startsWith("jdbc:sqlite:");
+    }
+
+    // ------------------------------------------------------------------ 迁移
+
+    /**
+     * 数据库迁移：为已存在的旧表追加新列（如图片路径）。
+     * SQLite / MySQL 的 ALTER TABLE 都不支持 "IF NOT EXISTS"，
+     * 因此用 try 包裹，遇到“列已存在”的错误直接忽略。
+     */
+    private static void migrate() throws SQLException {
+        String[] alters = {
+                "ALTER TABLE t_reply ADD COLUMN image_path TEXT",
+                "ALTER TABLE t_post ADD COLUMN image_path TEXT"
+        };
+        Connection conn = getConnection();
+        try (Statement st = conn.createStatement()) {
+            for (String sql : alters) {
+                try {
+                    st.execute(sql);
+                } catch (SQLException e) {
+                    String msg = e.getMessage() == null ? "" : e.getMessage().toLowerCase();
+                    if (msg.contains("duplicate") || msg.contains("already exists")
+                            || msg.contains("exist")) {
+                        // 列已存在，属于正常情况，忽略
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        } finally {
+            close(conn);
+        }
     }
 
     // ------------------------------------------------------------------ 建表
@@ -201,13 +262,11 @@ public class DBUtil {
         long now = System.currentTimeMillis();
         Connection conn = getConnection();
         try {
-            // 板块
+            // 板块（精简为三个核心板块）
             Object[][] boards = {
-                    {"综合讨论", "💬", "随便聊聊，什么都能发", 5},
-                    {"技术问答", "🛠", "遇到 Bug？把问题描述清楚", 4},
-                    {"资源分享", "📦", "好用的工具、教程、资料", 3},
-                    {"闲聊灌水", "🌊", "摸鱼、吐槽、八卦", 2},
-                    {"公告区", "📢", "官方通知，仅管理员发布", 1}
+                    {"综合讨论", "💬", "站务闲聊、新人报道、随便聊", 5},
+                    {"技术问答", "🛠", "遇到 Bug？把问题说清楚", 4},
+                    {"资源分享", "📦", "好用的工具、教程、资料", 3}
             };
             for (Object[] b : boards) {
                 String check = "SELECT COUNT(1) FROM t_board WHERE name=?";
@@ -255,14 +314,16 @@ public class DBUtil {
                 emptyPost = rs.getInt(1) == 0;
             }
             if (emptyPost) {
+                int generalId = getBoardIdByName(conn, "综合讨论");
+                int techId = getBoardIdByName(conn, "技术问答");
+                int adminId = getAdminId(conn);
                 String insertPost = "INSERT INTO t_post(board_id,title,content,user_id,views,likes,pinned,created_time,updated_time) " +
                         "VALUES(?,?,?,?,?,?,?,?,?)";
                 PreparedStatement ps = conn.prepareStatement(insertPost);
-                // 公告（置顶）
-                ps.setInt(1, 5);
+                // 开版公告（置顶）
+                ps.setInt(1, generalId);
                 ps.setString(2, "九组论坛开版啦");
-                ps.setString(3, "欢迎来到九组论坛。\n\n· 左侧可以选择板块，右上角可以发帖\n· 支持回复、点赞、搜索\n· 公告区只有管理员能发帖");
-                int adminId = getAdminId(conn);
+                ps.setString(3, "欢迎来到九组论坛。\n\n· 顶部导航可以切换板块，右上角可以发帖\n· 支持回复、点赞、搜索\n· 有问题可以问右下角的 AI 助手小九");
                 ps.setInt(4, adminId);
                 ps.setInt(5, 128);
                 ps.setInt(6, 8);
@@ -271,7 +332,7 @@ public class DBUtil {
                 ps.setLong(9, now);
                 ps.executeUpdate();
                 // 普通帖
-                ps.setInt(1, 1);
+                ps.setInt(1, techId > 0 ? techId : generalId);
                 ps.setString(2, "说说你这学期最想搞定的一件事");
                 ps.setString(3, "我先来：把这学期的课程设计从头到尾做完整，不再临时抱佛脚。\n你们呢？");
                 ps.setInt(4, adminId);
@@ -293,6 +354,16 @@ public class DBUtil {
         try (Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery("SELECT id FROM t_user WHERE username='admin'")) {
             return rs.next() ? rs.getInt(1) : 0;
+        }
+    }
+
+    /** 按板块名取 ID（示例帖引用，避免硬编码 ID） */
+    private static int getBoardIdByName(Connection conn, String name) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT id FROM t_board WHERE name=?")) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : 0;
+            }
         }
     }
 }

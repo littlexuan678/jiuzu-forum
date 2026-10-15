@@ -19,7 +19,6 @@ public class PostService {
 
     private PostDao postDao = new PostDao();
     private ReplyDao replyDao = new ReplyDao();
-    private BoardService boardService = new BoardService();
 
     /**
      * 分页查询帖子列表
@@ -64,26 +63,75 @@ public class PostService {
     /**
      * 发布新帖
      *
-     * @param post 帖子对象（含板块、标题、正文）
-     * @param user 发帖人
+     * @param post      帖子对象（含板块、标题、正文）
+     * @param user      发帖人
+     * @param imagePath 帖子封面 / 配图相对路径，无图传 null
      */
-    public void create(Post post, User user) {
+    public void create(Post post, User user, String imagePath) {
         if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
             throw new IllegalArgumentException("标题不能为空");
         }
         if (post.getTitle().length() > 60) {
             throw new IllegalArgumentException("标题不能超过 60 个字");
         }
-        if (post.getContent() == null || post.getContent().trim().isEmpty()) {
+        boolean hasText = post.getContent() != null && !post.getContent().trim().isEmpty();
+        boolean hasImage = imagePath != null && !imagePath.isEmpty();
+        if (!hasText && !hasImage) {
             throw new IllegalArgumentException("正文不能为空");
         }
-        // 公告区仅管理员可发
-        if (boardService.isAnnouncementBoard(post.getBoardId()) && !user.isAdmin()) {
-            throw new SecurityException("公告区只有管理员可以发帖");
+        if (hasImage) {
+            post.setImagePath(imagePath);
         }
         post.setUserId(user.getId());
         post.setPinned(0);
         postDao.insert(post);
+    }
+
+    /** 按 ID 取帖子（不累加浏览量），用于编辑回填等非浏览场景 */
+    public Post findById(int id) {
+        return postDao.findById(id);
+    }
+
+    /**
+     * 编辑帖子：作者本人（或管理员）可改板块、标题、正文、配图
+     *
+     * @param id         帖子 ID
+     * @param post       待更新的字段
+     * @param user       操作人
+     * @param imagePath  新配图相对路径；传 null 表示不改图，传空串表示移除配图
+     */
+    public void update(int id, Post post, User user, String imagePath) {
+        Post old = postDao.findById(id);
+        if (old == null) {
+            throw new IllegalArgumentException("帖子不存在或已被删除");
+        }
+        boolean owner = old.getUserId() != null && old.getUserId().intValue() == user.getId();
+        if (!owner && !user.isAdmin()) {
+            throw new SecurityException("只能编辑自己的帖子");
+        }
+        if (post.getTitle() == null || post.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("标题不能为空");
+        }
+        if (post.getTitle().length() > 60) {
+            throw new IllegalArgumentException("标题不能超过 60 个字");
+        }
+        boolean hasText = post.getContent() != null && !post.getContent().trim().isEmpty();
+
+        // 配图的三种情况：传了非空路径 = 换新图；传空串 = 主动移除；传 null = 保持原图
+        String finalImage;
+        if (imagePath != null && !imagePath.isEmpty()) {
+            finalImage = imagePath;
+        } else if (imagePath != null) {
+            finalImage = "";
+        } else {
+            finalImage = old.getImagePath();
+        }
+        boolean hasImage = finalImage != null && !finalImage.isEmpty();
+        if (!hasText && !hasImage) {
+            throw new IllegalArgumentException("正文和配图不能同时为空");
+        }
+        postDao.updateContent(id, post.getBoardId(), post.getTitle().trim(),
+                post.getContent() == null ? "" : post.getContent().trim(), finalImage);
     }
 
     /**

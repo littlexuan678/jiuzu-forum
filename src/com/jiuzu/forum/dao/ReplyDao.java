@@ -13,10 +13,13 @@ import java.util.List;
  */
 public class ReplyDao extends BaseDao {
 
-    /** 联表查询：回复 + 回复者 */
+    /** 联表查询：回复 + 回复者 + 所属帖子标题 + 所属板块 */
     private static final String SELECT_REPLY =
-            "SELECT r.*, u.nickname, u.avatar_color FROM t_reply r " +
-                    "LEFT JOIN t_user u ON u.id=r.user_id ";
+            "SELECT r.*, u.nickname, u.avatar_color, p.title AS post_title, b.name AS board_name " +
+            "FROM t_reply r " +
+            "LEFT JOIN t_user u ON u.id=r.user_id " +
+            "LEFT JOIN t_post p ON p.id=r.post_id " +
+            "LEFT JOIN t_board b ON b.id=p.board_id ";
 
     private static final RowMapper<Reply> REPLY_MAPPER = new RowMapper<Reply>() {
         public Reply mapRow(ResultSet rs) throws SQLException {
@@ -25,9 +28,12 @@ public class ReplyDao extends BaseDao {
             r.setPostId(rs.getInt("post_id"));
             r.setUserId(rs.getInt("user_id"));
             r.setContent(rs.getString("content"));
+            r.setImagePath(rs.getString("image_path"));
             r.setCreatedTime(rs.getLong("created_time"));
             r.setNickname(rs.getString("nickname"));
             r.setAvatarColor(rs.getString("avatar_color"));
+            r.setPostTitle(rs.getString("post_title"));
+            r.setBoardName(rs.getString("board_name"));
             return r;
         }
     };
@@ -45,9 +51,9 @@ public class ReplyDao extends BaseDao {
 
     /** 新增回复 */
     public int insert(Reply reply) {
-        String sql = "INSERT INTO t_reply(post_id,user_id,content,created_time) VALUES(?,?,?,?)";
+        String sql = "INSERT INTO t_reply(post_id,user_id,content,image_path,created_time) VALUES(?,?,?,?,?)";
         return update(sql, new Object[]{reply.getPostId(), reply.getUserId(),
-                reply.getContent(), System.currentTimeMillis()});
+                reply.getContent(), reply.getImagePath(), System.currentTimeMillis()});
     }
 
     /** 删除回复 */
@@ -65,8 +71,19 @@ public class ReplyDao extends BaseDao {
         return update("DELETE FROM t_reply WHERE user_id=?", new Object[]{userId});
     }
 
-    /** 统计回复数 */
+    /** 统计某个帖子的回复数 */
     public int countByPostId(int postId) {
         return count("SELECT COUNT(1) FROM t_reply WHERE post_id=?", new Object[]{postId});
+    }
+
+    /** 全部回复（后台管理用）：按时间倒序分页，含帖子标题与板块名 */
+    public List<Reply> findList(int start, int size) {
+        String sql = SELECT_REPLY + " ORDER BY r.created_time DESC LIMIT ? OFFSET ?";
+        return query(sql, new Object[]{size, start}, REPLY_MAPPER);
+    }
+
+    /** 回复总数 */
+    public int countAll() {
+        return count("SELECT COUNT(1) FROM t_reply", null);
     }
 }

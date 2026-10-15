@@ -22,10 +22,23 @@ public class ReplyAddServlet extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         User user = requireLogin(req);
-        int postId = getIntParam(req, "postId", 0);
-        String content = getStringParam(req, "content");
+        boolean mp = isMultipart(req);
+        int postId = parseInt(mp ? getMultipartString(req, "postId") : getStringParam(req, "postId"), 0);
+        String content = mp ? getMultipartString(req, "content") : getStringParam(req, "content");
+
+        String imagePath = null;
+        if (mp) {
+            try {
+                imagePath = saveMultipartImage(req, "image", "replies");
+            } catch (IllegalArgumentException e) {
+                req.getSession().setAttribute("flashError", e.getMessage());
+                redirect(resp, req, "/post/detail?id=" + postId);
+                return;
+            }
+        }
+
         try {
-            replyService.create(postId, content, user);
+            replyService.create(postId, content, user, imagePath);
         } catch (IllegalArgumentException | SecurityException e) {
             req.getSession().setAttribute("flashError", e.getMessage());
         }

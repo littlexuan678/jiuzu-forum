@@ -25,6 +25,12 @@ public class Reply implements Serializable {
     private String avatarColor;
     /** 回复内容 */
     private String content;
+    /** 回复附带的图片路径（相对地址，如 /uploads/replies/xxx.jpg），无图则为 null */
+    private String imagePath;
+    /** 所属帖子标题（联表） */
+    private String postTitle;
+    /** 所属板块名称（联表） */
+    private String boardName;
     /** 回复时间（时间戳，毫秒） */
     private Long createdTime;
 
@@ -93,6 +99,30 @@ public class Reply implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
+    }
+
+    public String getPostTitle() {
+        return postTitle;
+    }
+
+    public void setPostTitle(String postTitle) {
+        this.postTitle = postTitle;
+    }
+
+    public String getBoardName() {
+        return boardName;
+    }
+
+    public void setBoardName(String boardName) {
+        this.boardName = boardName;
     }
 
     public Long getCreatedTime() {

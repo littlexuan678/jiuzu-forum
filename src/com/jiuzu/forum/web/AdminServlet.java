@@ -3,7 +3,9 @@ package com.jiuzu.forum.web;
 import com.jiuzu.forum.bean.Board;
 import com.jiuzu.forum.bean.PageBean;
 import com.jiuzu.forum.bean.Post;
+import com.jiuzu.forum.bean.Reply;
 import com.jiuzu.forum.bean.User;
+import com.jiuzu.forum.dao.BoardDao;
 import com.jiuzu.forum.dao.PostDao;
 import com.jiuzu.forum.dao.ReplyDao;
 import com.jiuzu.forum.dao.UserDao;
@@ -14,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -21,8 +24,11 @@ import java.util.List;
  *
  * <p>管理员专属，包含：</p>
  * <ul>
- *   <li>用户管理：查看、封禁/解封、删除用户（体现单表数据管理）</li>
+ *   <li>数据统计：用户 / 帖子 / 回复 / 板块总数与今日新增</li>
  *   <li>内容管理：查看全部帖子、删除、置顶/取消置顶</li>
+ *   <li>用户管理：查看、封禁/解封、权限、删除</li>
+ *   <li>板块管理：新增 / 编辑 / 删除（删除时可合并帖子到其他板块）</li>
+ *   <li>回复管理：查看全部回复、删除不当回复</li>
  * </ul>
  *
  * @author 第九小组
@@ -33,6 +39,8 @@ public class AdminServlet extends BaseServlet {
     private UserDao userDao = new UserDao();
     private PostDao postDao = new PostDao();
     private ReplyDao replyDao = new ReplyDao();
+    private BoardDao boardDao = new BoardDao();
+    private BoardService boardService = new BoardService();
     private PostService postService = new PostService();
 
     @Override
@@ -45,9 +53,46 @@ public class AdminServlet extends BaseServlet {
         }
         String op = getStringParam(req, "op");
         if (op.isEmpty()) {
-            op = "posts";
+            op = "dashboard";
         }
         int pageNo = getIntParam(req, "pageNo", 1);
+
+        if ("dashboard".equals(op)) {
+            req.setAttribute("statUsers", userDao.count());
+            req.setAttribute("statPosts", postDao.count());
+            req.setAttribute("statReplies", replyDao.countAll());
+            List<Board> boards = boardService.listAll();
+            req.setAttribute("statBoards", boards.size());
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            req.setAttribute("statNewPostsToday", postDao.countSince(c.getTimeInMillis()));
+            req.setAttribute("pageTitle", "数据统计");
+            forward(req, resp, "admin/dashboard.jsp");
+            return;
+        }
+
+        if ("boards".equals(op)) {
+            req.setAttribute("boards", boardService.listAll());
+            req.setAttribute("pageTitle", "板块管理");
+            forward(req, resp, "admin/boards.jsp");
+            return;
+        }
+
+        if ("replies".equals(op)) {
+            PageBean<Reply> pageBean = new PageBean<Reply>();
+            pageBean.setPageNo(pageNo);
+            pageBean.setPageSize(20);
+            pageBean.setTotalCount(replyDao.countAll());
+            int start = (pageBean.getPageNo() - 1) * pageBean.getPageSize();
+            pageBean.setList(replyDao.findList(start, pageBean.getPageSize()));
+            req.setAttribute("pageBean", pageBean);
+            req.setAttribute("pageTitle", "回复管理");
+            forward(req, resp, "admin/replies.jsp");
+            return;
+        }
 
         if ("users".equals(op)) {
             PageBean<User> pageBean = new PageBean<User>();
@@ -63,6 +108,7 @@ public class AdminServlet extends BaseServlet {
             return;
         }
 
+        // 默认：内容管理
         PageBean<Post> pageBean = new PageBean<Post>();
         pageBean.setPageNo(pageNo);
         pageBean.setPageSize(15);
@@ -71,7 +117,7 @@ public class AdminServlet extends BaseServlet {
         pageBean.setList(postDao.findList(0, null, "new", start, pageBean.getPageSize()));
         req.setAttribute("pageBean", pageBean);
         req.setAttribute("op", op);
-        List<Board> boards = new BoardService().listAll();
+        List<Board> boards = boardService.listAll();
         req.setAttribute("boards", boards);
         req.setAttribute("pageTitle", "内容管理");
         forward(req, resp, "admin/posts.jsp");
@@ -89,7 +135,33 @@ public class AdminServlet extends BaseServlet {
         int id = getIntParam(req, "id", 0);
         String back = getStringParam(req, "op");
         try {
-            if ("pin".equals(action)) {
+            if ("addBoard".equals(action)) {
+                String name = getStringParam(req, "name");
+                if (name.isEmpty()) {
+                    req.getSession().setAttribute("flashError", "板块名称不能为空");
+                } else {
+                    boardService.create(name, getStringParam(req, "icon"),
+                            getStringParam(req, "description"), getIntParam(req, "sortOrder", 0));
+                    req.getSession().setAttribute("flash", "板块已添加");
+                }
+            } else if ("editBoard".equals(action)) {
+                boardService.update(id, getStringParam(req, "name"),
+                        getStringParam(req, "icon"), getStringParam(req, "description"),
+                        getIntParam(req, "sortOrder", 0));
+                req.getSession().setAttribute("flash", "板块已更新");
+            } else if ("delBoard".equals(action)) {
+                if (boardService.listAll().size() <= 1) {
+                    req.getSession().setAttribute("flashError", "至少保留一个板块，无法删除");
+                } else {
+                    int mergeTo = getIntParam(req, "mergeTo", 0);
+                    boardService.deleteBoard(id, mergeTo);
+                    req.getSession().setAttribute("flash", mergeTo > 0 && mergeTo != id
+                            ? "板块已删除，帖子已合并到目标板块" : "板块及其帖子已删除");
+                }
+            } else if ("delReply".equals(action)) {
+                replyDao.delete(id);
+                req.getSession().setAttribute("flash", "回复已删除");
+            } else if ("pin".equals(action)) {
                 postService.pin(id, getIntParam(req, "on", 1) == 1, admin);
                 req.getSession().setAttribute("flash", "置顶状态已更新");
             } else if ("delPost".equals(action)) {
@@ -117,6 +189,6 @@ public class AdminServlet extends BaseServlet {
         } catch (Exception e) {
             req.getSession().setAttribute("flashError", e.getMessage());
         }
-        redirect(resp, req, "/admin?op=" + (back.isEmpty() ? "posts" : back));
+        redirect(resp, req, "/admin?op=" + (back.isEmpty() ? "dashboard" : back));
     }
 }

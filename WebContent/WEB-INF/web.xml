@@ -82,6 +82,20 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>PostEditServlet</servlet-name>
+        <servlet-class>com.jiuzu.forum.web.PostEditServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>5242880</max-file-size>
+            <max-request-size>10485760</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PostEditServlet</servlet-name>
+        <url-pattern>/post/edit</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>PostListServlet</servlet-name>
         <servlet-class>com.jiuzu.forum.web.PostListServlet</servlet-class>
     </servlet>
@@ -99,9 +113,15 @@
         <url-pattern>/post/detail</url-pattern>
     </servlet-mapping>
 
+    <!-- 发帖：支持配图上传（multipart） -->
     <servlet>
         <servlet-name>PostAddServlet</servlet-name>
         <servlet-class>com.jiuzu.forum.web.PostAddServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>5242880</max-file-size>
+            <max-request-size>10485760</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
     </servlet>
     <servlet-mapping>
         <servlet-name>PostAddServlet</servlet-name>
@@ -117,9 +137,15 @@
         <url-pattern>/post/delete</url-pattern>
     </servlet-mapping>
 
+    <!-- 回复：支持配图上传（multipart） -->
     <servlet>
         <servlet-name>ReplyAddServlet</servlet-name>
         <servlet-class>com.jiuzu.forum.web.ReplyAddServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>5242880</max-file-size>
+            <max-request-size>10485760</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
     </servlet>
     <servlet-mapping>
         <servlet-name>ReplyAddServlet</servlet-name>

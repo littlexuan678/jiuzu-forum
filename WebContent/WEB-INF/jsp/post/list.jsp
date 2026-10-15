@@ -15,7 +15,7 @@
                 <h1 class="hero-fs-title">九组论坛</h1>
                 <p class="hero-fs-sub">说点什么，写点什么 —— 在时光中相遇，传递温暖话语</p>
                 <div class="hero-fs-actions">
-                    <a class="hero-btn ghost" href="${ctx}/posts?boardId=5"><svg class="i"><use href="#i-mega"></use></svg>看公告</a>
+                    <a class="hero-btn ghost" href="${ctx}/posts?boardId=1"><svg class="i"><use href="#i-mega"></use></svg>看公告</a>
                     <c:choose>
                         <c:when test="${not empty sessionScope.user}">
                             <a class="hero-btn primary" href="${ctx}/post/add"><svg class="i"><use href="#i-pen"></use></svg>发个帖子</a>
@@ -201,7 +201,7 @@
                 还没账号？<a href="${ctx}/register">注册一个</a><br>
                 有想法？<a href="${ctx}/post/add">发个帖子</a><br>
                 有问题？<a href="${ctx}/ai">问问 AI 小九</a><br>
-                <a href="${ctx}/posts?boardId=5">查看公告</a>
+                <a href="${ctx}/posts?boardId=1">查看公告</a>
             </p>
         </div>
     </aside>

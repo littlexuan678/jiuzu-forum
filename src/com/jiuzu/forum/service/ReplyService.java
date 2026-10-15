@@ -25,24 +25,30 @@ public class ReplyService {
     /**
      * 发表回复
      *
-     * @param postId  帖子 ID
-     * @param content 回复内容
-     * @param user    回复者
+     * @param postId    帖子 ID
+     * @param content   回复内容（可为空，但需至少带一张图片）
+     * @param user      回复者
+     * @param imagePath 回复附带的图片相对路径，无图传 null
      */
-    public void create(int postId, String content, User user) {
+    public void create(int postId, String content, User user, String imagePath) {
         if (postDao.findById(postId) == null) {
             throw new IllegalArgumentException("帖子不存在或已被删除");
         }
-        if (content == null || content.trim().isEmpty()) {
+        boolean hasText = content != null && !content.trim().isEmpty();
+        boolean hasImage = imagePath != null && !imagePath.isEmpty();
+        if (!hasText && !hasImage) {
             throw new IllegalArgumentException("回复内容不能为空");
         }
-        if (content.length() > 1000) {
+        if (hasText && content.length() > 1000) {
             throw new IllegalArgumentException("回复内容过长（最多 1000 字）");
         }
         Reply reply = new Reply();
         reply.setPostId(postId);
         reply.setUserId(user.getId());
-        reply.setContent(content.trim());
+        reply.setContent(hasText ? content.trim() : "");
+        if (hasImage) {
+            reply.setImagePath(imagePath);
+        }
         replyDao.insert(reply);
     }
 

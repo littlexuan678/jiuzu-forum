@@ -54,10 +54,19 @@ public class AiServlet extends BaseServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         req.setCharacterEncoding("UTF-8");
+        DeepSeekUtil.init(getServletContext());
         resp.setContentType("application/json;charset=UTF-8");
         PrintWriter out = resp.getWriter();
 
         String body = readBody(req);
+
+        // AI 帮写草稿（发帖 / 回复）：action=compose
+        String action = extractField(body, "action");
+        if ("compose".equals(action)) {
+            handleCompose(req, resp, out, body);
+            return;
+        }
+
         // 清空对话
         if (body.contains("\"clear\"")) {
             req.getSession().removeAttribute(HISTORY_KEY);
@@ -91,6 +100,48 @@ public class AiServlet extends BaseServlet {
                 history.remove(0);
             }
             session.setAttribute(HISTORY_KEY, history);
+            writeJson(out, true, "", reply);
+        } catch (Exception e) {
+            writeJson(out, false, "AI 出错了：" + e.getMessage(), "");
+        }
+    }
+
+    /**
+     * 处理「AI 帮写草稿」请求：根据 kind（post/reply）构造不同的提示词，
+     * 调用 DeepSeek 生成一篇草稿，原样返回给前端自行解析填表。
+     */
+    private void handleCompose(HttpServletRequest req, HttpServletResponse resp, PrintWriter out, String body)
+            throws IOException {
+        DeepSeekUtil.init(getServletContext());
+        if (!DeepSeekUtil.isReady()) {
+            writeJson(out, false, "AI 助手未配置 API Key，请在 WEB-INF/config.properties 中配置", "");
+            return;
+        }
+        String kind = extractField(body, "kind");
+        String prompt = extractField(body, "prompt");
+        if (prompt.isEmpty()) {
+            writeJson(out, false, "请先描述你想写什么", "");
+            return;
+        }
+        if (prompt.length() > 2000) {
+            prompt = prompt.substring(0, 2000);
+        }
+
+        String sys;
+        String userMsg;
+        if ("reply".equals(kind)) {
+            sys = "你是「九组论坛」的回复助手。根据用户提供的帖子上下文和想法，写一段适合论坛回复的中文内容，"
+                    + "语气友善、口语化，80-200 字，不要使用 Markdown 标题或代码块，只输出回复正文。";
+            userMsg = "请帮我写一条回复，我的想法/上下文如下：\n" + prompt;
+        } else {
+            sys = "你是「九组论坛」的发帖助手。根据用户给的主题或要点，生成一篇可直接发布的论坛帖子草稿。"
+                    + "严格按如下格式输出：第一行写【标题】后面跟一句话标题；第二行起写正文，结构清晰、语气自然，200-400 字。"
+                    + "不要使用 Markdown 代码块或额外说明。";
+            userMsg = "我要发一个帖子，主题/要点如下：\n" + prompt + "\n请按格式输出标题和正文。";
+        }
+
+        try {
+            String reply = DeepSeekUtil.chat(new String[][]{{"system", sys}, {"user", userMsg}});
             writeJson(out, true, "", reply);
         } catch (Exception e) {
             writeJson(out, false, "AI 出错了：" + e.getMessage(), "");

@@ -11,7 +11,10 @@
         <h2><svg class="i"><use href="#i-users"></use></svg>用户管理</h2>
         <span class="desc">封禁 / 解封、权限调整、删除用户</span>
         <div class="admin-nav">
+            <a class="sort" href="${ctx}/admin?op=dashboard">数据统计</a>
             <a class="sort" href="${ctx}/admin?op=posts">内容管理</a>
+            <a class="sort" href="${ctx}/admin?op=boards">板块管理</a>
+            <a class="sort" href="${ctx}/admin?op=replies">回复管理</a>
             <a class="sort on" href="${ctx}/admin?op=users">用户管理</a>
             <a class="sort" href="${ctx}/posts">返回前台</a>
         </div>

@@ -34,9 +34,10 @@ public class DeepSeekUtil {
     private static String baseUrl = "https://api.deepseek.com/v1";
     private static String model = "deepseek-chat";
 
-    /** 应用启动时由 AiServlet 调用一次，读取配置文件 */
+    /** 应用启动时由 AiServlet 调用；若尚未就绪（配置文件缺失/未加载）会重新尝试读取，
+     *  这样即便配置文件在应用启动后补传，下一次请求也能自动生效，避免永久“不可用”。 */
     public static synchronized void init(ServletContext ctx) {
-        if (inited) {
+        if (inited && isReady()) {
             return;
         }
         InputStream in = null;

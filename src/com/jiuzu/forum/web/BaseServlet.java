@@ -7,7 +7,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.UUID;
 
 /**
  * Servlet 基类
@@ -23,6 +31,11 @@ public abstract class BaseServlet extends HttpServlet {
 
     /** JSP 页面统一放在 /WEB-INF/jsp 下，避免被直接访问 */
     protected static final String JSP = "/WEB-INF/jsp/";
+
+    /** 允许上传的图片扩展名（小写） */
+    private static final String[] IMG_EXT = {".jpg", ".jpeg", ".png", ".gif", ".webp"};
+    /** 单张图片大小上限：5MB */
+    private static final long MAX_IMG_SIZE = 5L * 1024 * 1024;
 
     /** 获取当前登录用户，未登录返回 null */
     protected User getLoginUser(HttpServletRequest req) {
@@ -77,5 +90,101 @@ public abstract class BaseServlet extends HttpServlet {
     /** 设置操作成功提示（JSP 中用 ${message} 显示） */
     protected void setMessage(HttpServletRequest req, String msg) {
         req.setAttribute("message", msg);
+    }
+
+    // ---------------------------------------------------------- 文件上传相关
+
+    /** 请求是否为 multipart/form-data（带文件上传） */
+    protected boolean isMultipart(HttpServletRequest req) {
+        String ct = req.getContentType();
+        return ct != null && ct.toLowerCase().contains("multipart/");
+    }
+
+    /** 将字符串解析为 int，失败返回默认值 */
+    protected int parseInt(String s, int def) {
+        if (s == null) {
+            return def;
+        }
+        s = s.trim();
+        if (s.isEmpty()) {
+            return def;
+        }
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+    /** 读取 multipart 表单里的文本字段（非文件 part），缺省返回空串 */
+    protected String getMultipartString(HttpServletRequest req, String name)
+            throws IOException, ServletException {
+        Part p = req.getPart(name);
+        if (p == null) {
+            return "";
+        }
+        // 文件型 part 带有 filename，跳过
+        if (p.getSubmittedFileName() != null && !p.getSubmittedFileName().isEmpty()) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), "UTF-8"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+        return sb.toString().trim();
+    }
+
+    /**
+     * 保存上传的图片文件，返回可在页面直接引用的相对路径（如 /uploads/replies/123_ab.jpg）。
+     * 未选择文件时返回 null；类型或大小非法时抛出 IllegalArgumentException。
+     */
+    protected String saveMultipartImage(HttpServletRequest req, String partName, String subDir)
+            throws IOException, ServletException {
+        Part p = req.getPart(partName);
+        if (p == null) {
+            return null;
+        }
+        String fileName = p.getSubmittedFileName();
+        if (fileName == null || fileName.trim().isEmpty()) {
+            return null; // 没选文件
+        }
+        fileName = fileName.trim();
+        String lower = fileName.toLowerCase();
+        boolean okExt = false;
+        String ext = "";
+        for (String e : IMG_EXT) {
+            if (lower.endsWith(e)) {
+                okExt = true;
+                ext = e;
+                break;
+            }
+        }
+        if (!okExt) {
+            throw new IllegalArgumentException("仅支持 jpg / png / gif / webp 图片");
+        }
+        if (p.getSize() > MAX_IMG_SIZE) {
+            throw new IllegalArgumentException("图片不能超过 5MB");
+        }
+        String newName = System.currentTimeMillis() + "_"
+                + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ext;
+        String realPath = getServletContext().getRealPath("/");
+        File dir = new File(realPath, "uploads" + File.separator + subDir);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("无法创建上传目录");
+        }
+        File out = new File(dir, newName);
+        try (InputStream in = p.getInputStream();
+             OutputStream os = new FileOutputStream(out)) {
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                os.write(buf, 0, n);
+            }
+        }
+        return "/uploads/" + subDir + "/" + newName;
     }
 }
