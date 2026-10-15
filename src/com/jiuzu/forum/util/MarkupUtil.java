@@ -62,34 +62,81 @@ public final class MarkupUtil {
         return out.toString();
     }
 
-    /** 代码块之外的行内排版 */
+    /**
+     * 代码块之外的行内排版
+     *
+     * <p>排版规则（对应"回车要自然分段、插图独占整行"的诉求）：</p>
+     * <ul>
+     *   <li>敲一次回车（单个换行）→ 段内换行 {@code <br>}</li>
+     *   <li>空一行（连续两个换行）→ 结束当前段落，段落之间有舒适间距</li>
+     *   <li>整行只有一张图片 → 包进 {@code .md-figure} 独占一行，文字不环绕</li>
+     *   <li>分割线 / 引用属于块级元素，会自动结束当前段落</li>
+     * </ul>
+     */
     private static String inline(String block) {
         StringBuilder sb = new StringBuilder();
-        String[] lines = block.split("\n", -1);
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            String t = escapeHtml(line);
+        StringBuilder para = new StringBuilder();
 
-            // 分割线
-            if (t.trim().equals("---")) {
+        for (String line : block.split("\n", -1)) {
+            String t = escapeHtml(line);
+            String trim = t.trim();
+
+            // 空行：分段
+            if (trim.isEmpty()) {
+                flushPara(sb, para);
+                continue;
+            }
+            // 分割线 / 引用：块级元素，先收尾当前段落
+            if (trim.equals("---")) {
+                flushPara(sb, para);
                 sb.append("<hr class=\"md-hr\">");
-            } else if (t.trim().startsWith("&gt;")) {
-                // 引用
+                continue;
+            }
+            if (trim.startsWith("&gt;")) {
+                flushPara(sb, para);
                 sb.append("<blockquote class=\"md-quote\">")
-                        .append(t.trim().replaceFirst("&gt;\\s*", ""))
+                        .append(trim.replaceFirst("&gt;\\s*", ""))
                         .append("</blockquote>");
-            } else {
-                // 图片、行内代码、加粗
-                t = replaceImage(t);
-                t = CODE.matcher(t).replaceAll("<code class=\"md-code\">$1</code>");
-                t = BOLD.matcher(t).replaceAll("<strong>$1</strong>");
-                sb.append(t);
+                continue;
             }
-            if (i < lines.length - 1) {
-                sb.append("<br>");
+
+            // 图片、行内代码、加粗
+            t = replaceImage(t);
+            t = CODE.matcher(t).replaceAll("<code class=\"md-code\">$1</code>");
+            t = BOLD.matcher(t).replaceAll("<strong>$1</strong>");
+
+            // 整行只有一张图片：独占一行，禁止文字环绕
+            if (isPureImage(t)) {
+                flushPara(sb, para);
+                sb.append("<div class=\"md-figure\">").append(t.trim()).append("</div>");
+                continue;
             }
+
+            if (para.length() > 0) {
+                para.append("<br>");
+            }
+            para.append(t);
         }
+        flushPara(sb, para);
         return sb.toString();
+    }
+
+    /** 把已收集的行收成一个段落输出 */
+    private static void flushPara(StringBuilder sb, StringBuilder para) {
+        if (para.length() == 0) {
+            return;
+        }
+        sb.append("<p class=\"md-p\">").append(para).append("</p>");
+        para.setLength(0);
+    }
+
+    /** 判断这一行是不是"只有一张图片" */
+    private static boolean isPureImage(String html) {
+        String s = html.trim();
+        if (!s.startsWith("<img") || !s.endsWith(">")) {
+            return false;
+        }
+        return s.indexOf("<img") == s.lastIndexOf("<img");
     }
 
     /** 把 ![alt](url) 换成 img，并校验地址白名单 */

@@ -40,13 +40,15 @@
                 </div>
             </div>
 
-            <%-- 正文：由 MarkupUtil 渲染（先转义再放行图片/加粗/代码等轻量语法）--%>
-            <div class="m-detail-body">${post.contentHtml}</div>
-
-            <%-- 帖子配图 --%>
+            <%-- 1. 封面图：置顶在正文上方，横向撑满 --%>
             <c:if test="${not empty post.imagePath}">
-                <div><img src="${ctx}${post.imagePath}" alt="帖子配图" data-zoom loading="lazy"></div>
+                <div class="m-detail-cover">
+                    <img src="${ctx}${post.imagePath}" alt="帖子封面" data-zoom loading="lazy">
+                </div>
             </c:if>
+
+            <%-- 2. 正文：由 MarkupUtil 渲染（先转义再放行图片/加粗/代码等轻量语法）--%>
+            <div class="m-detail-body">${post.contentHtml}</div>
 
             <div class="m-action-bar">
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -115,7 +117,9 @@
                                 </div>
                                 <div class="m-reply-body">${r.contentHtml}</div>
                                 <c:if test="${not empty r.imagePath}">
-                                    <img src="${ctx}${r.imagePath}" alt="回复配图" data-zoom loading="lazy">
+                                    <div class="md-figure">
+                                        <img class="m-reply-img" src="${ctx}${r.imagePath}" alt="回复配图" data-zoom loading="lazy">
+                                    </div>
                                 </c:if>
                             </div>
                         </div>

@@ -131,7 +131,14 @@ public abstract class BaseServlet extends HttpServlet {
         try (BufferedReader br = new BufferedReader(
                 new InputStreamReader(p.getInputStream(), "UTF-8"))) {
             String line;
+            boolean first = true;
             while ((line = br.readLine()) != null) {
+                // readLine 会吃掉换行符，这里必须补回去，否则正文的回车分段全部丢失
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append('\n');
+                }
                 sb.append(line);
             }
         }
