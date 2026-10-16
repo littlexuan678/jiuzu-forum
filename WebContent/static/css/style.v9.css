@@ -877,3 +877,50 @@
   .m-sub-head { font-size: 0.82rem; }
   .m-reply-btn { padding: 3px 9px; }
 }
+
+/* ========== 超长正文折叠（详情页“展开 / 收起”） ========== */
+/* 仅在 JS 检测到正文超高时给 .m-detail-body 追加 .m-detail-collapse */
+.m-detail-collapse {
+  max-height: 520px;
+  overflow: hidden;
+  position: relative;
+  transition: max-height 0.4s ease;
+}
+/* 底部半透明渐变遮罩：起点透明 → 终点融入卡片底色，浅色/深色自动适配 */
+.m-detail-collapse::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 110px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, var(--m-card) 100%);
+  pointer-events: none;
+}
+.m-detail-collapse.expanded {
+  max-height: none !important;
+}
+.m-detail-collapse.expanded::after {
+  display: none;
+}
+.m-readmore {
+  text-align: center;
+  padding: 0.5rem 0 0.2rem;
+}
+.m-readmore button {
+  background: var(--m-primary-light);
+  border: 1px solid var(--m-primary);
+  color: var(--m-primary);
+  padding: 6px 20px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.m-readmore button:hover {
+  background: var(--m-primary);
+  color: #fff;
+}

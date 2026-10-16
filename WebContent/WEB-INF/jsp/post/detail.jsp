@@ -51,7 +51,16 @@
             </c:if>
 
             <%-- 2. 正文：由 MarkupUtil 渲染（先转义再放行图片/加粗/代码等轻量语法）--%>
-            <div class="m-detail-body">${post.contentHtml}</div>
+            <%-- 2. 正文：由 MarkupUtil 渲染（先转义再放行图片/加粗/代码等轻量语法）--%>
+            <%-- id=postBody 供“超长正文折叠”脚本检测高度 --%>
+            <div id="postBody" class="m-detail-body">${post.contentHtml}</div>
+
+            <%-- 超长正文：超过阈值由 JS 自动折叠，底部出现「展开阅读全文」--%>
+            <div class="m-readmore" id="readMoreWrap" style="display:none">
+                <button type="button" id="readMoreBtn" onclick="toggleReadMore()">
+                    <span>👇 展开阅读全文</span>
+                </button>
+            </div>
 
             <%-- 3. 附件下载卡片：带类型图标、文件名与大小 --%>
             <c:if test="${post.hasAttachment}">
@@ -404,6 +413,34 @@
             .finally(function () { go.disabled = false; go.textContent = '生成草稿'; });
         };
     })();
+</script>
+
+<script>
+    // 超长正文：渲染后若真实高度超过阈值，自动折叠并露出「展开阅读全文」
+    window.addEventListener('DOMContentLoaded', function () {
+        var body = document.getElementById('postBody');
+        var wrap = document.getElementById('readMoreWrap');
+        if (body && wrap && body.scrollHeight > 560) {
+            body.classList.add('m-detail-collapse');
+            wrap.style.display = 'block';
+        }
+    });
+
+    // 展开 / 收起切换
+    function toggleReadMore() {
+        var body = document.getElementById('postBody');
+        var btn = document.getElementById('readMoreBtn');
+        if (!body || !btn) { return; }
+        var label = btn.querySelector('span');
+        if (body.classList.contains('expanded')) {
+            body.classList.remove('expanded');
+            if (label) { label.textContent = '👇 展开阅读全文'; }
+            body.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            body.classList.add('expanded');
+            if (label) { label.textContent = '👆 收起长文'; }
+        }
+    }
 </script>
 
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp"/>
