@@ -261,18 +261,24 @@ public class Post implements Serializable {
     }
 
     /**
-     * 前台展示的 IP 属地：库里有属地就用属地，否则用 IP 现算一次并打码
-     * （老数据没有属地列时也能正常显示）
+     * 前台展示的 IP 属地（省一级，如「广东」）
+     *
+     * <p>口径与贴吧 / 微博一致：只显示地区，不显示任何形式的 IP。
+     * 历史数据若存的是打码 IP（如 113.66.*.*）或解析不出，均返回 null 隐藏徽章。</p>
      */
     public String getIpDisplay() {
         if (ipLoc != null && !ipLoc.trim().isEmpty()) {
-            return ipLoc;
+            return ipLoc.indexOf('*') >= 0 ? null : ipLoc;
         }
         // 老数据没有记录 IP，直接返回 null，页面不展示该徽章
         if (ip == null || ip.trim().isEmpty()) {
             return null;
         }
-        return IpUtil.getLocation(ip);
+        String loc = IpUtil.getLocation(ip);
+        if (loc == null || loc.trim().isEmpty() || loc.indexOf('*') >= 0) {
+            return null;
+        }
+        return loc;
     }
 
     public Integer getUserId() {

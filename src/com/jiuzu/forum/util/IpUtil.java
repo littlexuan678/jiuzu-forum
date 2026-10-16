@@ -14,15 +14,14 @@ import java.util.regex.Pattern;
  * IP 工具：获取客户端真实 IP 并解析属地
  *
  * <p>现代论坛（贴吧 / 微博 / 掘金）普遍展示「IP 属地」，只显示到省一级，
- * 不暴露完整地址。本工具遵循同样口径：</p>
+ * 不暴露任何 IP 信息。本工具遵循同样口径：</p>
  * <ul>
- *   <li>{@link #getClientIp} 穿透反向代理与 CDN，拿到客户端真实 IP</li>
- *   <li>{@link #getLocation} 返回属地文案；公网 IP 走在线解析并缓存，
- *       解析失败自动降级为掩码（如 113.66.*.*），绝不阻塞发帖</li>
- *   <li>{@link #mask} 把 IP 打码，前台展示用</li>
+ *   <li>{@link #getClientIp} 穿透反向代理与 CDN，拿到客户端真实 IP（完整 IP 只入库供后台查看）</li>
+ *   <li>{@link #getLocation} 返回省一级属地文案（如「广东」「内蒙古」「美国」）并缓存；
+ *       解析失败返回空串，前台不展示属地徽章，绝不阻塞发帖</li>
  * </ul>
  *
- * <p>完整 IP 仍然入库，但只供后台管理查看，前台一律不展示。</p>
+ * <p>完整 IP 仍然入库，但只供后台管理查看，前台一律不展示（包括打码形式）。</p>
  *
  * @author 第九小组
  */
@@ -127,12 +126,14 @@ public class IpUtil {
     }
 
     /**
-     * 解析 IP 属地
+     * 解析 IP 属地（省一级）
      *
-     * <p>优先级：缓存 → 内网判断 → 在线解析（带熔断）→ 掩码兜底。</p>
+     * <p>优先级：缓存 → 内网判断 → 在线解析（带熔断）。解析失败返回空串，
+     * 由前台隐藏属地徽章（不显示任何形式的 IP）。失败结果不缓存，
+     * 网络恢复后下次发帖可自动重试。</p>
      *
      * @param ip IP 地址，可为空
-     * @return 属地文案，如「广东」「本机」「113.66.*.*」
+     * @return 属地文案（如「广东」「本机」「美国」），解析不出返回空串
      */
     public static String getLocation(String ip) {
         if (isEmpty(ip)) {
@@ -150,7 +151,8 @@ public class IpUtil {
 
         String loc = queryOnline(ip);
         if (isEmpty(loc)) {
-            loc = mask(ip);
+            // 解析失败：返回空串（前台不展示徽章），不缓存以便网络恢复后重试
+            return "";
         }
         CACHE.put(ip, loc);
         return loc;
@@ -158,6 +160,8 @@ public class IpUtil {
 
     /**
      * 把 IP 打码：保留前两段，其余用 * 代替
+     *
+     * <p>当前前台已不展示任何形式的 IP，此方法仅作工具保留。</p>
      *
      * @param ip IP 地址
      * @return 如 113.66.*.*
@@ -179,12 +183,12 @@ public class IpUtil {
     }
 
     /**
-     * 在线查询归属地（太平洋网络 whois 接口，国内可达）
+     * 在线查询归属地并归一化为省一级（太平洋网络 whois 接口，国内可达）
      *
      * <p>任何异常都返回 null，由调用方降级，不会影响主流程。</p>
      *
      * @param ip 公网 IP
-     * @return 属地文案（如「广东省广州市 电信」），失败返回 null
+     * @return 省一级属地文案（如「广东」「内蒙古」「美国」），失败返回 null
      */
     private static String queryOnline(String ip) {
         if (System.currentTimeMillis() < disableUntil) {
@@ -208,18 +212,13 @@ public class IpUtil {
             if (body.indexOf('\ufffd') >= 0) {
                 body = new String(data, "UTF-8");
             }
-            String loc = firstGroup(ADDR, body);
-            if (isEmpty(loc)) {
-                String pro = firstGroup(PRO, body);
-                String city = firstGroup(CITY, body);
-                loc = (isEmpty(pro) ? "" : pro) + (isEmpty(city) ? "" : city);
-            }
+            String loc = toRegion(firstGroup(PRO, body), firstGroup(CITY, body), firstGroup(ADDR, body));
             if (isEmpty(loc)) {
                 fail();
                 return null;
             }
             failCount = 0;
-            return loc.trim();
+            return loc;
         } catch (Exception e) {
             fail();
             return null;
@@ -228,6 +227,63 @@ public class IpUtil {
                 conn.disconnect();
             }
         }
+    }
+
+    /**
+     * 把接口返回的地址归一化为省一级属地文案
+     *
+     * <p>优先取省份字段（「广东省」→「广东」，「广西壮族自治区」→「广西」，
+     * 直辖市「北京市」→「北京」）；省份缺失时从完整地址截省；
+     * 省市都缺失时多为境外，直接用国家/地区名（如「美国」）。</p>
+     *
+     * @param pro  省份，如「广东省」，可能为空
+     * @param city 城市，如「广州市」，可能为空
+     * @param addr 完整地址，如「广东省广州市 电信」或「美国」，可能为空
+     * @return 省一级属地文案，解析不出返回空串
+     */
+    private static String toRegion(String pro, String city, String addr) {
+        String p = safeTrim(pro);
+        if (!isEmpty(p)) {
+            return stripSuffix(p);
+        }
+        String a = safeTrim(addr);
+        if (!isEmpty(a)) {
+            String head = a.split("\\s+")[0]; // 去掉运营商等尾缀
+            if (head.contains("保留") || head.contains("局域网")) {
+                return ""; // 保留地址等无意义归属
+            }
+            int provinceIdx = head.indexOf('省');
+            if (provinceIdx > 0) {
+                return stripSuffix(head.substring(0, provinceIdx));
+            }
+            int cityIdx = head.indexOf('市');
+            if (cityIdx > 0) {
+                return stripSuffix(head.substring(0, cityIdx));
+            }
+            // 省市都没有：多为境外国家/地区（如「美国」），直接使用
+            if (head.length() <= 12 && !head.contains("*")) {
+                return head;
+            }
+        }
+        String c = safeTrim(city);
+        return isEmpty(c) ? "" : stripSuffix(c);
+    }
+
+    /** 去掉行政区划后缀：维吾尔/回族/壮族/自治区、省、市 */
+    private static String stripSuffix(String s) {
+        String v = safeTrim(s);
+        String[] suffixes = {"维吾尔自治区", "回族自治区", "壮族自治区", "自治区", "省", "市"};
+        for (String suf : suffixes) {
+            if (v.length() > suf.length() && v.endsWith(suf)) {
+                return v.substring(0, v.length() - suf.length());
+            }
+        }
+        return v;
+    }
+
+    /** null 安全去空格 */
+    private static String safeTrim(String s) {
+        return s == null ? "" : s.trim();
     }
 
     /** 正则取第一个分组 */

@@ -144,15 +144,22 @@ public class Reply implements Serializable {
         this.ipLoc = ipLoc;
     }
 
-    /** 前台展示的 IP 属地，老数据无属地时按 IP 现算并打码 */
+    /**
+     * 前台展示的 IP 属地（省一级，如「广东」），不显示任何形式的 IP；
+     * 历史打码值或解析不出时返回 null 隐藏徽章
+     */
     public String getIpDisplay() {
         if (ipLoc != null && !ipLoc.trim().isEmpty()) {
-            return ipLoc;
+            return ipLoc.indexOf('*') >= 0 ? null : ipLoc;
         }
         if (ip == null || ip.trim().isEmpty()) {
             return null;
         }
-        return IpUtil.getLocation(ip);
+        String loc = IpUtil.getLocation(ip);
+        if (loc == null || loc.trim().isEmpty() || loc.indexOf('*') >= 0) {
+            return null;
+        }
+        return loc;
     }
 
     public String getPostTitle() {
