@@ -41,8 +41,10 @@ public class IpUtil {
     private static final int FAIL_LIMIT = 3;
     private static final long DISABLE_MS = 10 * 60 * 1000L;
 
-    /** 在线解析超时（毫秒） */
-    private static final int TIMEOUT = 1500;
+    /** 在线解析连接超时（毫秒）。云上首次 TLS 握手较慢，留足余量避免误判失败 */
+    private static final int CONNECT_TIMEOUT = 3000;
+    /** 在线解析读取超时（毫秒） */
+    private static final int READ_TIMEOUT = 4000;
 
     private static final Pattern ADDR = Pattern.compile("\"addr\"\\s*:\\s*\"([^\"]*)\"");
     private static final Pattern PRO = Pattern.compile("\"pro\"\\s*:\\s*\"([^\"]*)\"");
@@ -196,11 +198,16 @@ public class IpUtil {
         }
         HttpURLConnection conn = null;
         try {
-            URL url = new URL("http://whois.pconline.com.cn/ipJson.jsp?json=true&ip=" + ip);
+            // 注意：该接口 HTTP 已返回 403（openresty 拦截），必须用 HTTPS
+            URL url = new URL("https://whois.pconline.com.cn/ipJson.jsp?json=true&ip=" + ip);
             conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(TIMEOUT);
-            conn.setReadTimeout(TIMEOUT);
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0 jiuzu-forum");
+            conn.setConnectTimeout(CONNECT_TIMEOUT);
+            conn.setReadTimeout(READ_TIMEOUT);
+            conn.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 jiuzu-forum");
+            // 部分镜像会校验 Referer，补上同源域名规避 403
+            conn.setRequestProperty("Referer", "https://whois.pconline.com.cn/");
+            conn.setRequestProperty("Accept", "*/*");
             int code = conn.getResponseCode();
             if (code != 200) {
                 fail();
