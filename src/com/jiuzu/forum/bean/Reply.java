@@ -3,7 +3,9 @@ package com.jiuzu.forum.bean;
 import com.jiuzu.forum.util.IpUtil;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 回复实体类（JavaBean）
@@ -39,6 +41,12 @@ public class Reply implements Serializable {
     private String boardName;
     /** 回复时间（时间戳，毫秒） */
     private Long createdTime;
+    /** 父回复 ID：0 表示顶层楼层，>0 表示挂在某条回复之下（楼中楼） */
+    private Integer parentId = 0;
+    /** 被回复人的昵称（楼中楼展示「回复 @某某」） */
+    private String replyToUser;
+    /** 楼中楼子回复列表，由 ReplyService 组装，顶层回复才有内容 */
+    private List<Reply> subReplies = new ArrayList<Reply>();
 
     public Reply() {
     }
@@ -169,5 +177,34 @@ public class Reply implements Serializable {
 
     public void setCreatedTime(Long createdTime) {
         this.createdTime = createdTime;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId == null ? 0 : parentId;
+    }
+
+    public String getReplyToUser() {
+        return replyToUser;
+    }
+
+    public void setReplyToUser(String replyToUser) {
+        this.replyToUser = replyToUser;
+    }
+
+    public List<Reply> getSubReplies() {
+        return subReplies;
+    }
+
+    public void setSubReplies(List<Reply> subReplies) {
+        this.subReplies = subReplies == null ? new ArrayList<Reply>() : subReplies;
+    }
+
+    /** 是否有楼中楼子回复（JSP 里 ${r.hasSub}） */
+    public boolean isHasSub() {
+        return subReplies != null && !subReplies.isEmpty();
     }
 }

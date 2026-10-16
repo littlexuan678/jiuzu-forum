@@ -39,6 +39,16 @@ public class ReplyDao extends BaseDao {
             } catch (SQLException ignored) {
                 // 旧库没有该列，忽略
             }
+            try {
+                r.setParentId(rs.getInt("parent_id"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，按顶层楼层处理
+            }
+            try {
+                r.setReplyToUser(rs.getString("reply_to_user"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，忽略
+            }
             r.setCreatedTime(rs.getLong("created_time"));
             r.setNickname(rs.getString("nickname"));
             r.setAvatarColor(rs.getString("avatar_color"));
@@ -59,17 +69,25 @@ public class ReplyDao extends BaseDao {
         return queryOne(SELECT_REPLY + " WHERE r.id=?", new Object[]{id}, REPLY_MAPPER);
     }
 
-    /** 新增回复（同时记录回复 IP 与属地） */
+    /** 新增回复（同时记录回复 IP、属地与楼中楼父级） */
     public int insert(Reply reply) {
-        String sql = "INSERT INTO t_reply(post_id,user_id,content,image_path,created_time,ip,ip_loc) VALUES(?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO t_reply(post_id,user_id,content,image_path,created_time,ip,ip_loc,parent_id,reply_to_user) "
+                + "VALUES(?,?,?,?,?,?,?,?,?)";
         return update(sql, new Object[]{reply.getPostId(), reply.getUserId(),
                 reply.getContent(), reply.getImagePath(), System.currentTimeMillis(),
-                reply.getIp(), reply.getIpLoc()});
+                reply.getIp(), reply.getIpLoc(),
+                reply.getParentId() == null ? 0 : reply.getParentId(),
+                reply.getReplyToUser() == null ? "" : reply.getReplyToUser()});
     }
 
     /** 删除回复 */
     public int delete(int id) {
         return update("DELETE FROM t_reply WHERE id=?", new Object[]{id});
+    }
+
+    /** 删除某条回复下的全部楼中楼子回复（删父级时级联清理） */
+    public int deleteByParentId(int parentId) {
+        return update("DELETE FROM t_reply WHERE parent_id=?", new Object[]{parentId});
     }
 
     /** 删除某个帖子下的全部回复（删帖时调用） */

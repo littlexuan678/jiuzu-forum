@@ -77,6 +77,14 @@ public class PostEditServlet extends BaseServlet {
             }
         }
 
+        // 附件：整体覆盖；勾选「移除附件」或重新上传了新的，都以当前隐藏域为准
+        String removeAttach = mp ? getMultipartString(req, "removeAttachment") : getStringParam(req, "removeAttachment");
+        if (!"1".equals(removeAttach)) {
+            post.setAttachmentUrl(mp ? getMultipartString(req, "attachmentUrl") : getStringParam(req, "attachmentUrl"));
+            post.setAttachmentName(mp ? getMultipartString(req, "attachmentName") : getStringParam(req, "attachmentName"));
+            post.setAttachmentSize(mp ? getMultipartString(req, "attachmentSize") : getStringParam(req, "attachmentSize"));
+        }
+
         try {
             postService.update(id, post, user, imagePath);
             redirect(resp, req, "/post/detail?id=" + id);

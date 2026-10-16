@@ -26,6 +26,8 @@ public class ReplyAddServlet extends BaseServlet {
         boolean mp = isMultipart(req);
         int postId = parseInt(mp ? getMultipartString(req, "postId") : getStringParam(req, "postId"), 0);
         String content = mp ? getMultipartString(req, "content") : getStringParam(req, "content");
+        // 楼中楼：parentId>0 表示回复某一条回复（被回复人昵称由服务端从库中取，不接受前端传入）
+        int parentId = parseInt(mp ? getMultipartString(req, "parentId") : getStringParam(req, "parentId"), 0);
 
         String imagePath = null;
         if (mp) {
@@ -43,7 +45,7 @@ public class ReplyAddServlet extends BaseServlet {
         String ipLoc = IpUtil.getLocation(ip);
 
         try {
-            replyService.create(postId, content, user, imagePath, ip, ipLoc);
+            replyService.create(postId, content, user, imagePath, ip, ipLoc, parentId);
         } catch (IllegalArgumentException | SecurityException e) {
             req.getSession().setAttribute("flashError", e.getMessage());
         }

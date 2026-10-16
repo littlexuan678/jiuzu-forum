@@ -54,8 +54,81 @@ public class Post implements Serializable {
     private Long updatedTime;
     /** 当前登录用户是否已点赞（非数据库列） */
     private boolean liked;
+    /** 帖子附件地址（如 /uploads/files/xxx.zip），无附件则为 null */
+    private String attachmentUrl;
+    /** 附件原始文件名，用于展示与下载时的文件名 */
+    private String attachmentName;
+    /** 附件大小的可读文案，如「1.2 MB」 */
+    private String attachmentSize;
 
     public Post() {
+    }
+
+    /** 是否有附件（JSP 中 ${post.hasAttachment}） */
+    public boolean isHasAttachment() {
+        return attachmentUrl != null && !attachmentUrl.trim().isEmpty();
+    }
+
+    /**
+     * 附件下载链接：在地址后带上原始文件名，
+     * 这样 FileServlet 能以「实验报告.pdf」而不是随机名下载。
+     */
+    public String getAttachmentDownload() {
+        if (!isHasAttachment()) {
+            return null;
+        }
+        String url = getAttachmentUrl();
+        if (attachmentName == null || attachmentName.trim().isEmpty()) {
+            return url;
+        }
+        try {
+            return url + "?name="
+                    + java.net.URLEncoder.encode(attachmentName, "UTF-8").replace("+", "%20");
+        } catch (Exception e) {
+            return url;
+        }
+    }
+
+    /**
+     * 统一成不带上下文前缀的相对地址（如 /uploads/files/xxx.zip）。
+     *
+     * <p>上传接口返回的是可直接用的绝对地址（含 /jiuzu-forum），而页面渲染时会再拼一次
+     * ${ctx}，直接入库会导致 /jiuzu-forum/jiuzu-forum/uploads/... 这种坏链。这里统一裁掉。</p>
+     */
+    private static String stripContext(String url) {
+        if (url == null) {
+            return null;
+        }
+        String u = url.trim();
+        if (u.startsWith("/uploads/")) {
+            return u;
+        }
+        int i = u.indexOf("/uploads/");
+        return i > 0 ? u.substring(i) : u;
+    }
+
+    /** 附件类型图标：压缩包 / 文档 / 表格 / 幻灯片 / 文本 / 默认 */
+    public String getAttachmentIcon() {
+        String n = attachmentName == null ? "" : attachmentName.toLowerCase();
+        if (n.endsWith(".zip") || n.endsWith(".rar") || n.endsWith(".7z") || n.endsWith(".tar") || n.endsWith(".gz")) {
+            return "🗜️";
+        }
+        if (n.endsWith(".pdf")) {
+            return "📕";
+        }
+        if (n.endsWith(".doc") || n.endsWith(".docx")) {
+            return "📘";
+        }
+        if (n.endsWith(".xls") || n.endsWith(".xlsx") || n.endsWith(".csv")) {
+            return "📗";
+        }
+        if (n.endsWith(".ppt") || n.endsWith(".pptx")) {
+            return "📙";
+        }
+        if (n.endsWith(".txt") || n.endsWith(".md") || n.endsWith(".log")) {
+            return "📄";
+        }
+        return "📦";
     }
 
     /** 发布时间转 Date，供 fmt:formatDate 使用 */
@@ -89,6 +162,30 @@ public class Post implements Serializable {
     /** 是否为置顶帖 */
     public boolean isTop() {
         return pinned != null && pinned.intValue() == 1;
+    }
+
+    public String getAttachmentUrl() {
+        return stripContext(attachmentUrl);
+    }
+
+    public void setAttachmentUrl(String attachmentUrl) {
+        this.attachmentUrl = stripContext(attachmentUrl);
+    }
+
+    public String getAttachmentName() {
+        return attachmentName;
+    }
+
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
+    }
+
+    public String getAttachmentSize() {
+        return attachmentSize;
+    }
+
+    public void setAttachmentSize(String attachmentSize) {
+        this.attachmentSize = attachmentSize;
     }
 
     public Integer getId() {

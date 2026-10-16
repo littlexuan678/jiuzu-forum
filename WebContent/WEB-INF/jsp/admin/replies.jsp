@@ -51,7 +51,13 @@
                 <c:forEach items="${pageBean.list}" var="r">
                     <tr>
                         <td><c:out value="${r.id}"/></td>
-                        <td class="reply-cell"><c:out value="${r.content}"/></td>
+                        <td class="reply-cell">
+                            <c:if test="${not empty r.replyToUser}">
+                                <span class="m-sub-at-name" style="font-size:12px">楼中楼 · 回复 @<c:out value="${r.replyToUser}"/></span>
+                                <div style="height:3px"></div>
+                            </c:if>
+                            <c:out value="${r.content}"/>
+                        </td>
                         <td>
                             <c:choose>
                                 <c:when test="${not empty r.postTitle}">

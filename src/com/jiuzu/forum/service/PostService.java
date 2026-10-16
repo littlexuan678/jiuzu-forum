@@ -130,8 +130,17 @@ public class PostService {
         if (!hasText && !hasImage) {
             throw new IllegalArgumentException("正文和配图不能同时为空");
         }
-        postDao.updateContent(id, post.getBoardId(), post.getTitle().trim(),
-                post.getContent() == null ? "" : post.getContent().trim(), finalImage);
+
+        // 附件直接整体覆盖：编辑页会回传现有附件（或空串表示移除）
+        String url = post.getAttachmentUrl() == null ? "" : post.getAttachmentUrl().trim();
+        String name = post.getAttachmentName() == null ? "" : post.getAttachmentName().trim();
+        String size = post.getAttachmentSize() == null ? "" : post.getAttachmentSize().trim();
+        if (url.isEmpty()) {
+            name = "";
+            size = "";
+        }
+        postDao.updateFull(id, post.getBoardId(), post.getTitle().trim(),
+                post.getContent() == null ? "" : post.getContent().trim(), finalImage, url, name, size);
     }
 
     /**

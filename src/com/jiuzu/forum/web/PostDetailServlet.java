@@ -34,9 +34,12 @@ public class PostDetailServlet extends BaseServlet {
             forward(req, resp, "error/404.jsp");
             return;
         }
+        // 楼中楼：replies 是顶层楼层列表（子回复挂在各层的 subReplies 里）
         List<Reply> replies = replyService.listByPostId(id);
         req.setAttribute("post", post);
         req.setAttribute("replies", replies);
+        // 顶层列表的 size 只是楼层数，总数（含楼中楼）单独给一个
+        req.setAttribute("replyTotal", replyService.countByPostId(id));
         req.setAttribute("pageTitle", post.getTitle());
         forward(req, resp, "post/detail.jsp");
     }

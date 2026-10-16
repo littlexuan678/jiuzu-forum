@@ -114,6 +114,28 @@ public class FileServlet extends HttpServlet {
         resp.setHeader("Cache-Control", "public, max-age=86400");
         resp.setDateHeader("Last-Modified", target.lastModified());
 
+        // 附件目录（uploads/files）一律以下载方式返回，避免 html / svg 之类被浏览器直接解析执行
+        if (clean.startsWith("files/")) {
+            String raw = req.getParameter("name");
+            if (raw == null || raw.trim().isEmpty()) {
+                raw = target.getName();
+            }
+            // 防 CRLF 注入：响应头里不能出现换行和引号
+            raw = raw.replaceAll("[\\r\\n\"]", "").trim();
+            if (raw.isEmpty()) {
+                raw = target.getName();
+            }
+            String ascii = raw.replaceAll("[^\\x20-\\x7E]", "_");
+            String encoded;
+            try {
+                encoded = java.net.URLEncoder.encode(raw, "UTF-8").replace("+", "%20");
+            } catch (IOException e) {
+                encoded = ascii;
+            }
+            resp.setHeader("Content-Disposition",
+                    "attachment; filename=\"" + ascii + "\"; filename*=UTF-8''" + encoded);
+        }
+
         try (InputStream in = Files.newInputStream(target.toPath());
              OutputStream out = resp.getOutputStream()) {
             byte[] buf = new byte[8192];

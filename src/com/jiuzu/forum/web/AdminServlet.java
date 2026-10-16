@@ -162,6 +162,8 @@ public class AdminServlet extends BaseServlet {
                             ? "板块已删除，帖子已合并到目标板块" : "板块及其帖子已删除");
                 }
             } else if ("delReply".equals(action)) {
+                // 楼中楼：删父级时把挂在它下面的子回复一起清掉
+                replyDao.deleteByParentId(id);
                 replyDao.delete(id);
                 req.getSession().setAttribute("flash", "回复已删除");
             } else if ("pin".equals(action)) {

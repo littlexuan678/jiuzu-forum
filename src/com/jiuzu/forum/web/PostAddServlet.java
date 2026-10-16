@@ -51,6 +51,10 @@ public class PostAddServlet extends BaseServlet {
         // 记录发布 IP 与属地（前台只展示属地，完整 IP 供后台查看）
         post.setIp(IpUtil.getClientIp(req));
         post.setIpLoc(IpUtil.getLocation(post.getIp()));
+        // 附件：由发帖页用 /upload?type=file 先传好，这里只收三个隐藏字段
+        post.setAttachmentUrl(mp ? getMultipartString(req, "attachmentUrl") : getStringParam(req, "attachmentUrl"));
+        post.setAttachmentName(mp ? getMultipartString(req, "attachmentName") : getStringParam(req, "attachmentName"));
+        post.setAttachmentSize(mp ? getMultipartString(req, "attachmentSize") : getStringParam(req, "attachmentSize"));
 
         String imagePath = null;
         if (mp) {

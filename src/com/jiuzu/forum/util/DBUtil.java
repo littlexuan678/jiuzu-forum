@@ -169,7 +169,14 @@ public class DBUtil {
                 "ALTER TABLE t_post ADD COLUMN ip TEXT",
                 "ALTER TABLE t_post ADD COLUMN ip_loc TEXT",
                 "ALTER TABLE t_reply ADD COLUMN ip TEXT",
-                "ALTER TABLE t_reply ADD COLUMN ip_loc TEXT"
+                "ALTER TABLE t_reply ADD COLUMN ip_loc TEXT",
+                // 楼中楼：parent_id=0 为顶层楼层，>0 表示挂在某条回复下；reply_to_user 记录被回复人昵称
+                "ALTER TABLE t_reply ADD COLUMN parent_id INTEGER DEFAULT 0",
+                "ALTER TABLE t_reply ADD COLUMN reply_to_user TEXT",
+                // 帖子附件（zip / pdf / docx 等通用文件）
+                "ALTER TABLE t_post ADD COLUMN attachment_url TEXT",
+                "ALTER TABLE t_post ADD COLUMN attachment_name TEXT",
+                "ALTER TABLE t_post ADD COLUMN attachment_size TEXT"
         };
         Connection conn = getConnection();
         try (Statement st = conn.createStatement()) {

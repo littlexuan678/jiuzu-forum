@@ -53,6 +53,25 @@
             <%-- 2. 正文：由 MarkupUtil 渲染（先转义再放行图片/加粗/代码等轻量语法）--%>
             <div class="m-detail-body">${post.contentHtml}</div>
 
+            <%-- 3. 附件下载卡片：带类型图标、文件名与大小 --%>
+            <c:if test="${post.hasAttachment}">
+                <div class="m-attach">
+                    <span class="m-attach-ic"><c:out value="${post.attachmentIcon}"/></span>
+                    <div class="m-attach-info">
+                        <div class="m-attach-name"><c:out value="${post.attachmentName}"/></div>
+                        <div class="m-attach-meta">
+                            附件
+                            <c:if test="${not empty post.attachmentSize}">
+                                · <c:out value="${post.attachmentSize}"/>
+                            </c:if>
+                        </div>
+                    </div>
+                    <a class="m-btn primary sm" href="${ctx}${post.attachmentDownload}">
+                        <svg class="i"><use href="#i-down"></use></svg>下载
+                    </a>
+                </div>
+            </c:if>
+
             <div class="m-action-bar">
                 <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                     <c:choose>
@@ -88,7 +107,7 @@
         <%-- 回复列表 --%>
         <div class="m-card">
             <h4 class="m-widget-title" style="border-bottom:1px solid var(--m-border-light);padding-bottom:0.5rem">
-                全部回复 <span style="font-size:0.8rem;color:var(--m-text-muted);font-weight:400">（<c:out value="${empty replies ? 0 : replies.size()}"/>）</span>
+                全部回复 <span style="font-size:0.8rem;color:var(--m-text-muted);font-weight:400">（<c:out value="${empty replyTotal ? 0 : replyTotal}"/>）</span>
             </h4>
 
             <c:choose>
@@ -112,9 +131,13 @@
                                     </div>
                                     <div style="display:flex;align-items:center;gap:8px">
                                         <span class="m-floor">#${vs.count} 楼</span>
+                                        <c:if test="${not empty sessionScope.user}">
+                                            <button type="button" class="m-reply-btn"
+                                                    onclick="toggleSubBox(${r.id}, this)">💬 回复</button>
+                                        </c:if>
                                         <c:if test="${not empty sessionScope.user and (sessionScope.user.id eq r.userId or sessionScope.user.admin)}">
                                             <form action="${ctx}/reply/delete" method="post"
-                                                  onsubmit="return confirm('确定删除这条回复？')">
+                                                  onsubmit="return confirm('确定删除这条回复？楼中楼也会一起删除')">
                                                 <input type="hidden" name="id" value="${r.id}">
                                                 <button class="m-rm" type="submit">删除</button>
                                             </form>
@@ -125,6 +148,65 @@
                                 <c:if test="${not empty r.imagePath}">
                                     <div class="md-figure">
                                         <img class="m-reply-img" src="${ctx}${r.imagePath}" alt="回复配图" data-zoom loading="lazy">
+                                    </div>
+                                </c:if>
+
+                                <%-- 楼中楼：该楼层下的子回复 --%>
+                                <c:if test="${r.hasSub}">
+                                    <div class="m-sub-list">
+                                        <c:forEach items="${r.subReplies}" var="sub">
+                                            <div class="m-sub">
+                                                <span class="m-ava sm" style="background:${sub.avatarColor}">
+                                                    <c:out value="${sub.nickname.substring(0,1)}"/>
+                                                </span>
+                                                <div class="m-sub-main">
+                                                    <div class="m-sub-head">
+                                                        <strong><c:out value="${sub.nickname}"/></strong>
+                                                        <c:if test="${not empty sub.replyToUser}">
+                                                            <span class="m-sub-at">回复</span>
+                                                            <span class="m-sub-at-name">@<c:out value="${sub.replyToUser}"/></span>
+                                                        </c:if>
+                                                        <span class="m-sub-time"><c:out value="${sub.createdText}"/></span>
+                                                        <c:if test="${not empty sub.ipDisplay}">
+                                                            <span class="m-ip" title="IP 属地">📍<c:out value="${sub.ipDisplay}"/></span>
+                                                        </c:if>
+                                                        <span style="flex:1"></span>
+                                                        <c:if test="${not empty sessionScope.user and (sessionScope.user.id eq sub.userId or sessionScope.user.admin)}">
+                                                            <form action="${ctx}/reply/delete" method="post"
+                                                                  onsubmit="return confirm('确定删除这条回复？')">
+                                                                <input type="hidden" name="id" value="${sub.id}">
+                                                                <button class="m-rm" type="submit">删除</button>
+                                                            </form>
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="m-reply-body">${sub.contentHtml}</div>
+                                                    <c:if test="${not empty sub.imagePath}">
+                                                        <div class="md-figure">
+                                                            <img class="m-reply-img" src="${ctx}${sub.imagePath}" alt="回复配图" data-zoom loading="lazy">
+                                                        </div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
+                                </c:if>
+
+                                <%-- 楼中楼快捷输入框：默认隐藏 --%>
+                                <c:if test="${not empty sessionScope.user}">
+                                    <div class="m-sub-box" id="subBox-${r.id}" style="display:none">
+                                        <form action="${ctx}/reply/add" method="post" id="subForm-${r.id}">
+                                            <input type="hidden" name="postId" value="${post.id}">
+                                            <input type="hidden" name="parentId" value="${r.id}">
+                                            <textarea class="m-textarea" name="content" rows="2"
+                                                      placeholder="回复 @<c:out value='${r.nickname}'/>…" required
+                                                      style="min-height:64px"></textarea>
+                                            <div class="m-sub-foot">
+                                                <span style="font-size:0.75rem;color:var(--m-text-muted)">Ctrl / ⌘ + Enter 发送</span>
+                                                <span style="flex:1"></span>
+                                                <button type="button" class="m-btn ghost sm" onclick="toggleSubBox(${r.id}, this)">取消</button>
+                                                <button type="submit" class="m-btn primary sm">发送</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </c:if>
                             </div>
@@ -226,16 +308,36 @@
         document.body.appendChild(box);
     });
 
-    // Ctrl / ⌘ + Enter 提交回复
-    var ta = document.getElementById('replyContent');
-    if (ta) {
-        ta.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    // Ctrl / ⌘ + Enter 提交回复（主回复框 + 所有楼中楼框）
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+            var el = e.target;
+            if (el && el.tagName === 'TEXTAREA' && el.form) {
                 e.preventDefault();
-                ta.form.submit();
+                el.form.submit();
             }
-        });
-    }
+        }
+    });
+
+    // 楼中楼：展开 / 收起某个楼层下的快捷回复框
+    window.toggleSubBox = function (replyId, btn) {
+        var box = document.getElementById('subBox-' + replyId);
+        if (!box) { return; }
+        var hidden = box.style.display === 'none' || box.style.display === '';
+        // 先收起其它已展开的，避免页面被多个输入框撑得很长
+        var all = document.querySelectorAll('.m-sub-box');
+        for (var i = 0; i < all.length; i++) {
+            if (all[i] !== box) { all[i].style.display = 'none'; }
+        }
+        box.style.display = hidden ? 'block' : 'none';
+        if (hidden) {
+            var ta = box.querySelector('textarea');
+            if (ta) { ta.focus(); }
+            if (btn && btn.scrollIntoView) {
+                btn.scrollIntoView({block: 'center', behavior: 'smooth'});
+            }
+        }
+    };
 
     // 回复配图：本地预览 + 移除
     (function () {

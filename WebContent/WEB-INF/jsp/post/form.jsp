@@ -112,6 +112,40 @@
                 </div>
             </div>
 
+            <div class="m-field">
+                <label class="m-label">📎 帖子附件（可选，用于分享源码压缩包 / 实验报告等）</label>
+                <c:choose>
+                    <c:when test="${editing and post.hasAttachment}">
+                        <div class="m-attach" style="margin:0 0 0.6rem">
+                            <span class="m-attach-ic"><c:out value="${post.attachmentIcon}"/></span>
+                            <div class="m-attach-info">
+                                <div class="m-attach-name"><c:out value="${post.attachmentName}"/></div>
+                                <div class="m-attach-meta">当前附件<c:if test="${not empty post.attachmentSize}"> · <c:out value="${post.attachmentSize}"/></c:if></div>
+                            </div>
+                            <label class="m-rm" style="display:inline-flex;align-items:center;gap:4px">
+                                <input type="checkbox" name="removeAttachment" value="1"> 移除
+                            </label>
+                        </div>
+                    </c:when>
+                </c:choose>
+                <div class="m-img-pick">
+                    <input type="file" id="attachInput" hidden>
+                    <button type="button" class="m-btn ghost sm" id="attachBtn">
+                        <svg class="i"><use href="#i-box"></use></svg>选择本地文件
+                    </button>
+                    <span style="font-size:0.78rem;color:var(--m-text-muted)" id="attachName">
+                        支持 zip / rar / 7z / pdf / docx / xlsx / pptx / txt 等，≤20MB
+                    </span>
+                </div>
+                <div class="m-attach-picked" id="attachPicked" style="display:none">
+                    <span id="attachPickedName"></span>
+                    <button type="button" class="m-rm" id="attachRm">移除</button>
+                </div>
+                <input type="hidden" name="attachmentUrl" id="attachmentUrl" value="${post.attachmentUrl}">
+                <input type="hidden" name="attachmentName" id="attachmentName" value="${post.attachmentName}">
+                <input type="hidden" name="attachmentSize" id="attachmentSize" value="${post.attachmentSize}">
+            </div>
+
             <div style="display:flex;justify-content:flex-end;gap:10px">
                 <a class="m-btn ghost" href="${ctx}/posts">取消</a>
                 <button class="m-btn primary" type="submit">${editing ? '保存修改' : '立即发布'}</button>
@@ -225,6 +259,61 @@
             prev.style.display = 'none';
             thumb.src = '';
             nameEl.textContent = '支持 jpg / png / gif / webp，≤5MB';
+        };
+    })();
+
+    // 附件上传：走 /upload?type=file，成功后把 url / 文件名 / 大小写进隐藏域
+    (function () {
+        var input = document.getElementById('attachInput');
+        var btn = document.getElementById('attachBtn');
+        var nameEl = document.getElementById('attachName');
+        var picked = document.getElementById('attachPicked');
+        var pickedName = document.getElementById('attachPickedName');
+        var rm = document.getElementById('attachRm');
+        var urlEl = document.getElementById('attachmentUrl');
+        var nmEl = document.getElementById('attachmentName');
+        var szEl = document.getElementById('attachmentSize');
+        if (!input) { return; }
+
+        btn.onclick = function () { input.click(); };
+        input.onchange = function () {
+            if (!input.files || !input.files[0]) { return; }
+            var f = input.files[0];
+            nameEl.textContent = '正在上传：' + f.name + ' …';
+            nameEl.style.color = 'var(--m-primary)';
+            var fd = new FormData();
+            fd.append('file', f);
+            fetch('${ctx}/upload?type=file', { method: 'POST', body: fd })
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (d.success) {
+                        urlEl.value = d.url;
+                        nmEl.value = d.fileName || f.name;
+                        szEl.value = d.fileSize || '';
+                        pickedName.textContent = (d.fileName || f.name) + (d.fileSize ? '（' + d.fileSize + '）' : '');
+                        picked.style.display = 'flex';
+                        nameEl.textContent = '已就绪，发布后可在文末下载';
+                        nameEl.style.color = '#16a34a';
+                    } else {
+                        nameEl.textContent = '上传失败：' + (d.message || '未知错误');
+                        nameEl.style.color = '#dc2626';
+                    }
+                    input.value = '';
+                })
+                .catch(function () {
+                    nameEl.textContent = '上传失败，请检查网络';
+                    nameEl.style.color = '#dc2626';
+                    input.value = '';
+                });
+        };
+        rm.onclick = function () {
+            urlEl.value = '';
+            nmEl.value = '';
+            szEl.value = '';
+            picked.style.display = 'none';
+            pickedName.textContent = '';
+            nameEl.textContent = '支持 zip / rar / 7z / pdf / docx / xlsx / pptx / txt 等，≤20MB';
+            nameEl.style.color = 'var(--m-text-muted)';
         };
     })();
 

@@ -46,6 +46,21 @@ public class PostDao extends BaseDao {
             } catch (SQLException ignored) {
                 // 列不存在，忽略
             }
+            try {
+                p.setAttachmentUrl(rs.getString("attachment_url"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，忽略
+            }
+            try {
+                p.setAttachmentName(rs.getString("attachment_name"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，忽略
+            }
+            try {
+                p.setAttachmentSize(rs.getString("attachment_size"));
+            } catch (SQLException ignored) {
+                // 旧库没有该列，忽略
+            }
             p.setUserId(rs.getInt("user_id"));
             p.setNickname(rs.getString("nickname"));
             p.setAvatarColor(rs.getString("avatar_color"));
@@ -136,14 +151,16 @@ public class PostDao extends BaseDao {
         return queryOne(SELECT_POST + " WHERE p.id=?", new Object[]{id}, POST_MAPPER);
     }
 
-    /** 新增帖子（同时记录发布 IP 与属地） */
+    /** 新增帖子（同时记录发布 IP 与属地、附件信息） */
     public int insert(Post post) {
-        String sql = "INSERT INTO t_post(board_id,title,content,image_path,user_id,views,likes,pinned,created_time,updated_time,ip,ip_loc) " +
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO t_post(board_id,title,content,image_path,user_id,views,likes,pinned,created_time,updated_time,ip,ip_loc,"
+                + "attachment_url,attachment_name,attachment_size) " +
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         long now = System.currentTimeMillis();
         return update(sql, new Object[]{
                 post.getBoardId(), post.getTitle(), post.getContent(), post.getImagePath(), post.getUserId(),
-                0, 0, post.getPinned(), now, now, post.getIp(), post.getIpLoc()
+                0, 0, post.getPinned(), now, now, post.getIp(), post.getIpLoc(),
+                post.getAttachmentUrl(), post.getAttachmentName(), post.getAttachmentSize()
         });
     }
 
@@ -151,6 +168,19 @@ public class PostDao extends BaseDao {
     public int updateContent(int id, int boardId, String title, String content, String imagePath) {
         String sql = "UPDATE t_post SET board_id=?,title=?,content=?,image_path=?,updated_time=? WHERE id=?";
         return update(sql, new Object[]{boardId, title, content, imagePath, System.currentTimeMillis(), id});
+    }
+
+    /**
+     * 更新帖子的板块、标题、正文、配图与附件（编辑用）
+     *
+     * <p>附件三列直接整体覆盖：编辑页会回传现有附件的值，或传空串表示移除附件。</p>
+     */
+    public int updateFull(int id, int boardId, String title, String content, String imagePath,
+                          String attachmentUrl, String attachmentName, String attachmentSize) {
+        String sql = "UPDATE t_post SET board_id=?,title=?,content=?,image_path=?,updated_time=?,"
+                + "attachment_url=?,attachment_name=?,attachment_size=? WHERE id=?";
+        return update(sql, new Object[]{boardId, title, content, imagePath, System.currentTimeMillis(),
+                attachmentUrl, attachmentName, attachmentSize, id});
     }
 
     /** 删除帖子（关联的回复和点赞由 Service 层负责清理） */
