@@ -1,6 +1,7 @@
 package com.jiuzu.forum.web;
 
 import com.jiuzu.forum.bean.User;
+import com.jiuzu.forum.util.UploadUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -63,14 +64,10 @@ public class UploadServlet extends BaseServlet {
             return;
         }
 
-        // 直接落到 WebContent/uploads/content 下，供 /uploads/** 静态访问
-        String dirPath = getServletContext().getRealPath("/uploads/content");
-        if (dirPath == null) {
-            write(resp, false, "无法定位上传目录", null);
-            return;
-        }
-        File dir = new File(dirPath);
-        if (!dir.exists() && !dir.mkdirs()) {
+        // 落到应用外部的持久化目录（$CATALINA_BASE/forum-data/uploads/content），
+        // 由 FileServlet 负责读取；这样重新部署 WAR 也不会丢图
+        File dir = UploadUtil.ensureSubDir(UploadUtil.resolveRoot(getServletContext().getRealPath("/")), "content");
+        if (dir == null) {
             write(resp, false, "上传目录创建失败，请检查权限", null);
             return;
         }

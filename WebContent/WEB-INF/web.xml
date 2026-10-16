@@ -93,6 +93,17 @@
         <url-pattern>/logout</url-pattern>
     </servlet-mapping>
 
+    <!-- 静态上传文件读取：映射到应用外部持久化目录，重新部署不再丢图 -->
+    <servlet>
+        <servlet-name>FileServlet</servlet-name>
+        <servlet-class>com.jiuzu.forum.web.FileServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FileServlet</servlet-name>
+        <url-pattern>/uploads/*</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>ProfileServlet</servlet-name>
         <servlet-class>com.jiuzu.forum.web.ProfileServlet</servlet-class>

@@ -2,6 +2,7 @@ package com.jiuzu.forum.web;
 
 import com.jiuzu.forum.bean.User;
 import com.jiuzu.forum.filter.AuthFilter;
+import com.jiuzu.forum.util.UploadUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -178,9 +179,11 @@ public abstract class BaseServlet extends HttpServlet {
         }
         String newName = System.currentTimeMillis() + "_"
                 + UUID.randomUUID().toString().replace("-", "").substring(0, 8) + ext;
-        String realPath = getServletContext().getRealPath("/");
-        File dir = new File(realPath, "uploads" + File.separator + subDir);
-        if (!dir.exists() && !dir.mkdirs()) {
+        // 落到应用外部的持久化目录（$CATALINA_BASE/forum-data/uploads/<subDir>），
+        // 与 UploadServlet 保持一致，重新部署 WAR 不会丢图
+        File dir = UploadUtil.ensureSubDir(
+                UploadUtil.resolveRoot(getServletContext().getRealPath("/")), subDir);
+        if (dir == null) {
             throw new IOException("无法创建上传目录");
         }
         File out = new File(dir, newName);

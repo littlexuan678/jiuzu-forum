@@ -112,23 +112,58 @@
     <a class="fab" href="#top" title="回到顶部"><svg class="i"><use href="#i-up"></use></svg></a>
 </div>
 
-<%-- 移动端抽屉式板块导航 --%>
-<c:if test="${not empty boards}">
-    <div class="drawer" id="drawer">
+<%-- 移动端抽屉导航：补齐被隐藏的主导航、搜索、AI、个人中心与管理后台入口 --%>
+<div class="drawer" id="drawer">
+    <div class="nav-sec">快捷搜索</div>
+    <form class="drawer-search" action="${ctx}/posts" method="get">
+        <input type="text" name="kw" value="<c:out value='${kw}'/>" placeholder="搜索帖子…">
+    </form>
+
+    <div class="nav-sec">导航</div>
+    <a class="nav-item ${empty boardId || boardId == 0 ? 'on' : ''}" href="${ctx}/posts">
+        <span class="ic"><svg class="i"><use href="#i-grid"></use></svg></span><span>论坛首页</span>
+    </a>
+    <a class="nav-item" href="${ctx}/ai">
+        <span class="ic"><svg class="i"><use href="#i-spark"></use></svg></span><span>AI 助手</span>
+    </a>
+    <a class="nav-item" href="${ctx}/post/add">
+        <span class="ic"><svg class="i"><use href="#i-pen"></use></svg></span><span>发布帖子</span>
+    </a>
+    <c:choose>
+        <c:when test="${not empty sessionScope.user}">
+            <a class="nav-item" href="${ctx}/user/profile">
+                <span class="ic"><svg class="i"><use href="#i-users"></use></svg></span><span>个人中心</span>
+            </a>
+            <c:if test="${sessionScope.user.admin}">
+                <a class="nav-item" href="${ctx}/admin?op=posts" style="color:#d97706">
+                    <span class="ic"><svg class="i"><use href="#i-tool"></use></svg></span><span>管理后台</span>
+                </a>
+            </c:if>
+            <a class="nav-item" href="${ctx}/logout" style="color:#ef4444">
+                <span class="ic"><svg class="i"><use href="#i-x"></use></svg></span><span>退出登录</span>
+            </a>
+        </c:when>
+        <c:otherwise>
+            <a class="nav-item" href="${ctx}/login">
+                <span class="ic"><svg class="i"><use href="#i-users"></use></svg></span><span>登录</span>
+            </a>
+            <a class="nav-item" href="${ctx}/register">
+                <span class="ic"><svg class="i"><use href="#i-users"></use></svg></span><span>注册</span>
+            </a>
+        </c:otherwise>
+    </c:choose>
+
+    <c:if test="${not empty boards}">
         <div class="nav-sec">板块</div>
-        <a class="nav-item ${empty boardId || boardId == 0 ? 'on' : ''}" href="${ctx}/posts">
-            <span class="ic"><svg class="i"><use href="#i-folder"></use></svg></span><span>全部帖子</span>
-        </a>
         <c:forEach items="${boards}" var="b">
-            <a class="nav-item ${boardId == b.id ? 'on' : ''}"
-               href="${ctx}/posts?boardId=${b.id}">
+            <a class="nav-item ${boardId == b.id ? 'on' : ''}" href="${ctx}/posts?boardId=${b.id}">
                 <span class="ic"><jsp:include page="/WEB-INF/jsp/common/board-icon.jsp"><jsp:param name="name" value="${b.name}"/><jsp:param name="icon" value="${b.icon}"/></jsp:include></span><span><c:out value="${b.name}"/></span>
                 <span class="n"><c:out value="${b.postCount}"/></span>
             </a>
         </c:forEach>
-    </div>
-    <div class="mask" id="mask" style="display:none"></div>
-</c:if>
+    </c:if>
+</div>
+<div class="mask" id="mask" style="display:none"></div>
 
 <script>
     // 移动端抽屉：点汉堡显示，点遮罩、点导航项关闭

@@ -697,3 +697,85 @@
   border-color: var(--m-border);
   color: var(--m-text-sub);
 }
+
+/* ============================ 移动端适配（≤900 / ≤640） ============================ */
+@media (max-width: 900px) {
+  /* 表格改成横向滚动，避免把整页撑出横向滚动条 */
+  table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+  table th, table td { white-space: nowrap; }
+  /* 详情页 / 列表页留白收紧 */
+  .m-card { padding: 0.95rem; }
+  .m-post { padding: 0.9rem; }
+  /* 右侧栏卡片不再并排 */
+  .m-side > * { margin-bottom: 0.9rem; }
+}
+
+@media (max-width: 640px) {
+  /* iOS 聚焦输入框时禁止自动放大页面 */
+  input, textarea, select, .m-input, .m-textarea, .editor-textarea {
+    font-size: 16px !important;
+  }
+
+  /* 顶部：隐藏次要元素，给头像胶囊让出空间 */
+  .m-logo .m-badge { display: none; }
+  .m-logo span:nth-of-type(1) { font-size: 0.98rem; }
+  .m-user > .m-btn.ghost { display: none; }   /* 「退出」移入抽屉 */
+
+  /* 悬浮按钮缩小并贴边，避免遮挡内容 */
+  .fab-col { right: 12px; bottom: 16px; gap: 9px; }
+  .fab { width: 44px; height: 44px; }
+  .fab .i { width: 17px; height: 17px; }
+
+  /* 底部留白，最后一屏内容不被悬浮键压住 */
+  .site-footer { padding-bottom: 78px !important; }
+
+  /* 文章封面在手机上降低高度，别占满整屏 */
+  .m-detail-cover { max-height: 210px !important; margin: 0.8rem 0 1rem !important; }
+  .m-detail-cover img { max-height: 210px !important; }
+  .m-detail-title { font-size: 1.2rem; }
+
+  /* 正文图片限高，长链接不撑破屏幕 */
+  .m-detail-body img, .m-reply-body img, .md-figure img {
+    max-height: 300px !important;
+    margin: 0.9rem auto !important;
+  }
+  .m-detail-body, .m-reply-body { overflow-wrap: anywhere; word-break: break-word; }
+
+  /* 工具栏横向滚动：手机上按钮排不下时可左右滑 */
+  .toolbar { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+  .tool-btn { flex: 0 0 auto; }
+
+  /* 分页按钮放大触控区域 */
+  .m-pager a { min-width: 36px; min-height: 36px; padding: 0.35rem 0.6rem; }
+
+  /* 帖子卡片：缩略图在小屏改为下方整行，避免挤压标题 */
+  .m-post-thumb { width: 100% !important; height: auto !important; max-height: 190px; margin-top: 0.6rem; }
+
+  /* 板块/排序胶囊隐藏滚动条 */
+  .m-tabs::-webkit-scrollbar { display: none; }
+}
+
+/* 移动端抽屉：搜索框与图标尺寸 */
+.drawer .drawer-search { margin: 0.2rem 0 0.7rem; }
+.drawer .drawer-search input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.7rem;
+  font-size: 16px;
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-radius-sm);
+  background: var(--m-bg);
+  color: var(--m-text);
+}
+.drawer .nav-item .ic {
+  width: 18px; height: 18px;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex: 0 0 auto;
+}
+.drawer .nav-item .ic .i { width: 17px; height: 17px; }
